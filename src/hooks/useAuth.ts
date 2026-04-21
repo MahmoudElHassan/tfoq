@@ -10,32 +10,46 @@ export const useAuth = () => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchRoles = async (userId: string) => {
+    const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    if (error) return [];
+    return (data ?? []).map((r: any) => r.role as AppRole);
+  };
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    let mounted = true;
+
+    const syncAuthState = async (newSession: Session | null) => {
+      if (!mounted) return;
+
+      setLoading(true);
       setSession(newSession);
       setUser(newSession?.user ?? null);
-      if (newSession?.user) {
-        setTimeout(() => fetchRoles(newSession.user.id), 0);
-      } else {
+
+      if (!newSession?.user) {
         setRoles([]);
+        setLoading(false);
+        return;
       }
-    });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) fetchRoles(s.user.id);
+      const nextRoles = await fetchRoles(newSession.user.id);
+      if (!mounted) return;
+
+      setRoles(nextRoles);
       setLoading(false);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      void syncAuthState(newSession);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    void supabase.auth.getSession().then(({ data: { session: s } }) => syncAuthState(s));
 
-  const fetchRoles = async (userId: string) => {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    setRoles((data ?? []).map((r: any) => r.role as AppRole));
-    setLoading(false);
-  };
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
