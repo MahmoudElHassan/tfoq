@@ -7,10 +7,14 @@ import { Overview } from "@/components/dashboard/Overview";
 import { Statistics } from "@/components/dashboard/Statistics";
 import { Questions } from "@/components/dashboard/Questions";
 import { Teachers } from "@/components/dashboard/Teachers";
+import { UsersManagement } from "@/components/dashboard/UsersManagement";
+import { SiteContentEditor } from "@/components/dashboard/SiteContentEditor";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
-  overview: { title: "النظرة العامة", subtitle: "أهلاً أ. منى، إليك ملخص أداء المنصة اليوم" },
+  overview: { title: "النظرة العامة", subtitle: "أهلاً بكِ، إليكِ ملخص أداء المنصة اليوم" },
   stats: { title: "الإحصائيات التفصيلية", subtitle: "تحليلات معمّقة للأداء والتسجيلات" },
+  users: { title: "إدارة المستخدمين", subtitle: "تفعيل، تعطيل، تغيير الأدوار وحذف الحسابات" },
+  content: { title: "تحرير الصفحة الرئيسية", subtitle: "تعديل الهيرو، المميزات، الفوتر وكل العبارات" },
   questions: { title: "إدارة الأسئلة", subtitle: "بنك أسئلة التحصيلي والقدرات" },
   teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
   students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
@@ -50,14 +54,12 @@ const AdminDashboard = () => {
         <div className="flex-1 p-6 lg:p-8">
           {section === "overview" && <Overview />}
           {section === "stats" && <Statistics />}
+          {section === "users" && <UsersManagement />}
+          {section === "content" && <SiteContentEditor />}
           {section === "questions" && <Questions />}
           {section === "teachers" && <Teachers />}
-          {(section === "students" || section === "parents") && (
-            <div className="bg-card rounded-2xl p-12 text-center shadow-card border border-border/50">
-              <p className="font-display text-xl font-bold text-foreground">قسم {meta.title}</p>
-              <p className="text-muted-foreground mt-2">سيتم تطوير هذا القسم في النسخة القادمة</p>
-            </div>
-          )}
+          {section === "students" && <UsersManagement filterRole="student" />}
+          {section === "parents" && <UsersManagement filterRole="parent" />}
         </div>
       </main>
     </div>
