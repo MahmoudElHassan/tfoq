@@ -17,7 +17,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   parents: { title: "أولياء الأمور", subtitle: "حسابات أولياء الأمور المرتبطة" },
 };
 
-const Index = () => {
+const AdminDashboard = () => {
   const [section, setSection] = useState("overview");
 
   const handleExport = () => {
