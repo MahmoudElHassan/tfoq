@@ -68,7 +68,10 @@ const Auth = () => {
         toast.success("تم إنشاء حسابك بنجاح!", { description: "جاري تحويلك للوحة التحكم..." });
       } else {
         const parsed = loginSchema.parse({ email: form.email, password: form.password });
-        const { error } = await supabase.auth.signInWithPassword(parsed);
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.email,
+          password: parsed.password,
+        });
         if (error) throw error;
         toast.success("أهلاً بك مجدداً!");
       }
