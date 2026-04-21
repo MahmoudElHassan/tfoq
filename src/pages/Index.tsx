@@ -1,16 +1,67 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
+import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Header } from "@/components/dashboard/Header";
+import { Overview } from "@/components/dashboard/Overview";
+import { Statistics } from "@/components/dashboard/Statistics";
+import { Questions } from "@/components/dashboard/Questions";
+import { Teachers } from "@/components/dashboard/Teachers";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const titles: Record<string, { title: string; subtitle: string }> = {
+  overview: { title: "النظرة العامة", subtitle: "أهلاً أ. منى، إليك ملخص أداء المنصة اليوم" },
+  stats: { title: "الإحصائيات التفصيلية", subtitle: "تحليلات معمّقة للأداء والتسجيلات" },
+  questions: { title: "إدارة الأسئلة", subtitle: "بنك أسئلة التحصيلي والقدرات" },
+  teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
+  students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
+  parents: { title: "أولياء الأمور", subtitle: "حسابات أولياء الأمور المرتبطة" },
+};
+
+const Index = () => {
+  const [section, setSection] = useState("overview");
+
+  const handleExport = () => {
+    const overviewSheet = [
+      { المؤشر: "إجمالي الحسابات", القيمة: 1847, "نسبة النمو": "12.5%" },
+      { المؤشر: "الطالبات", القيمة: 1235, "نسبة النمو": "8.3%" },
+      { المؤشر: "أولياء الأمور", القيمة: 978, "نسبة النمو": "15.2%" },
+      { المؤشر: "المعلمات", القيمة: 64, "نسبة النمو": "4.1%" },
+    ];
+    const statsSheet = [
+      { المؤشر: "متوسط النقاط العام", القيمة: 78.4 },
+      { المؤشر: "الطالبات المرتبطات بأولياء الأمور", القيمة: 892 },
+      { المؤشر: "تسجيلات الأسبوع", القيمة: 170 },
+      { المؤشر: "تسجيلات الشهر", القيمة: 642 },
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(overviewSheet), "النظرة العامة");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(statsSheet), "الإحصائيات");
+    XLSX.writeFile(wb, `تقرير-منصة-تفوّق-${new Date().toLocaleDateString("ar")}.xlsx`);
+    toast.success("تم تصدير التقرير بنجاح", { description: "تم حفظ الملف بصيغة Excel" });
+  };
+
+  const meta = titles[section];
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-gradient-soft flex">
+      <Sidebar active={section} onChange={setSection} />
+      <main className="flex-1 min-w-0 flex flex-col">
+        <Header title={meta.title} subtitle={meta.subtitle} onExport={handleExport} />
+        <div className="flex-1 p-6 lg:p-8">
+          {section === "overview" && <Overview />}
+          {section === "stats" && <Statistics />}
+          {section === "questions" && <Questions />}
+          {section === "teachers" && <Teachers />}
+          {(section === "students" || section === "parents") && (
+            <div className="bg-card rounded-2xl p-12 text-center shadow-card border border-border/50">
+              <p className="font-display text-xl font-bold text-foreground">قسم {meta.title}</p>
+              <p className="text-muted-foreground mt-2">سيتم تطوير هذا القسم في النسخة القادمة</p>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
