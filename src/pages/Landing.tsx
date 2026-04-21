@@ -3,6 +3,7 @@ import { ArrowLeft, Sparkles, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Button } from "@/components/ui/button";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import heroImg from "@/assets/hero-students.jpg";
 
 const features = [
@@ -12,14 +13,30 @@ const features = [
   { icon: Users, title: "حساب ولي الأمر", desc: "تابع/ي أداء الطالبة، نقاطها وترتيبها بشكل مستمر ومفصّل", tone: "success" },
 ];
 
-const stats = [
-  { v: "1,200+", l: "طالبة مسجلة" },
-  { v: "5,000+", l: "سؤال تفاعلي" },
-  { v: "60+", l: "معلمة" },
-  { v: "98%", l: "رضا الطالبات" },
-];
+const heroDefaults = {
+  badge: "منصة تعليمية معتمدة لطالبات الثانوية",
+  title_line1: "تفوّقي في",
+  title_line2: "التحصيلي والقدرات",
+  description: "منصة تفاعلية متكاملة تساعدك على إتقان مهارات اختبارَي التحصيلي والقدرات عبر عجلة أسئلة ذكية، نظام نقاط، ولوحة ترتيب محفّزة.",
+  cta_primary: "ابدئي رحلتك الآن",
+  cta_secondary: "استكشفي المميزات",
+  stats: [
+    { v: "1,200+", l: "طالبة مسجلة" },
+    { v: "5,000+", l: "سؤال تفاعلي" },
+    { v: "60+", l: "معلمة" },
+    { v: "98%", l: "رضا الطالبات" },
+  ],
+};
+
+const featuresDefaults = {
+  eyebrow: "مميزات المنصة",
+  title: "كل ما تحتاجينه للتفوّق في مكان واحد",
+  subtitle: "أدوات تعليمية حديثة مصممة خصيصاً لطالبات المرحلة الثانوية",
+};
 
 const Landing = () => {
+  const { content: hero } = useSiteContent("hero", heroDefaults);
+  const { content: feat } = useSiteContent("features_section", featuresDefaults);
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SiteNav />
