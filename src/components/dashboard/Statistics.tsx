@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
-import { Target, LinkIcon, CalendarDays, CalendarRange, Loader2 } from "lucide-react";
+import { Target, LinkIcon, CalendarDays, TrendingUp, Loader2 } from "lucide-react";
 import { StatCard } from "./StatCard";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-
-const dayNames = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+import { PeriodFilter, Period, getPeriodStart, periodLabels } from "./PeriodFilter";
 
 export const Statistics = () => {
+  const [period, setPeriod] = useState<Period>("30d");
   const [loading, setLoading] = useState(true);
   const [avgScore, setAvgScore] = useState(0);
   const [linkedStudents, setLinkedStudents] = useState(0);
   const [linkedPct, setLinkedPct] = useState(0);
-  const [weekCount, setWeekCount] = useState(0);
-  const [monthCount, setMonthCount] = useState(0);
-  const [weeklyData, setWeeklyData] = useState<{ day: string; reg: number }[]>([]);
+  const [periodRegistrations, setPeriodRegistrations] = useState(0);
+  const [periodAttempts, setPeriodAttempts] = useState(0);
+  const [dailyData, setDailyData] = useState<{ day: string; reg: number }[]>([]);
   const [subjectScores, setSubjectScores] = useState<{ subject: string; avg: number }[]>([]);
-  const [monthlyTrend, setMonthlyTrend] = useState<{ w: string; score: number }[]>([]);
+  const [trend, setTrend] = useState<{ w: string; score: number }[]>([]);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
+      const start = getPeriodStart(period);
       const now = new Date();
-      const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
-      const monthAgo = new Date(now); monthAgo.setDate(now.getDate() - 30);
 
       const [{ data: roles }, { data: profiles }, { data: links }, { data: attempts }, { data: subjects }, { data: questions }] = await Promise.all([
         supabase.from("user_roles").select("user_id, role").eq("role", "student"),
@@ -34,44 +33,42 @@ export const Statistics = () => {
       ]);
 
       const studentIds = new Set((roles ?? []).map((r: any) => r.user_id));
-      const studentProfiles = (profiles ?? []).filter((p: any) => studentIds.has(p.id));
 
-      // Average overall score: ratio of correct attempts * 100
-      const att = attempts ?? [];
+      // Filter attempts to period
+      const allAtt = attempts ?? [];
+      const att = allAtt.filter((a: any) => new Date(a.attempted_at) >= start);
       const correct = att.filter((a: any) => a.is_correct).length;
       const avg = att.length > 0 ? Math.round((correct / att.length) * 1000) / 10 : 0;
       setAvgScore(avg);
+      setPeriodAttempts(att.length);
 
-      // Linked students
+      // Linked students (overall, no time filter)
       const linkedSet = new Set((links ?? []).map((l: any) => l.student_id));
       const linkedCount = [...linkedSet].filter((id) => studentIds.has(id)).length;
       setLinkedStudents(linkedCount);
       setLinkedPct(studentIds.size > 0 ? Math.round((linkedCount / studentIds.size) * 100) : 0);
 
-      // Week / Month registrations
+      // Registrations in period
       const allProfiles = profiles ?? [];
-      setWeekCount(allProfiles.filter((p: any) => new Date(p.created_at) >= weekAgo).length);
-      setMonthCount(allProfiles.filter((p: any) => new Date(p.created_at) >= monthAgo).length);
+      const profilesInPeriod = allProfiles.filter((p: any) => new Date(p.created_at) >= start);
+      setPeriodRegistrations(profilesInPeriod.length);
 
-      // Weekly daily registrations
-      const buckets: Record<number, number> = {};
-      for (let i = 6; i >= 0; i--) {
+      // Daily registrations across period
+      const dayMs = 86400000;
+      const totalDays = Math.max(1, Math.ceil((now.getTime() - start.getTime()) / dayMs));
+      const buckets: { day: string; reg: number; key: string }[] = [];
+      for (let i = totalDays - 1; i >= 0; i--) {
         const d = new Date(now); d.setDate(now.getDate() - i);
-        buckets[d.toDateString() as any] = 0;
+        buckets.push({ day: `${d.getDate()}/${d.getMonth() + 1}`, reg: 0, key: d.toDateString() });
       }
-      const weekly: { day: string; reg: number; key: string }[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now); d.setDate(now.getDate() - i);
-        weekly.push({ day: dayNames[d.getDay()], reg: 0, key: d.toDateString() });
-      }
-      allProfiles.forEach((p: any) => {
+      profilesInPeriod.forEach((p: any) => {
         const d = new Date(p.created_at);
-        const found = weekly.find((w) => w.key === d.toDateString());
+        const found = buckets.find((b) => b.key === d.toDateString());
         if (found) found.reg++;
       });
-      setWeeklyData(weekly.map(({ day, reg }) => ({ day, reg })));
+      setDailyData(buckets.map(({ day, reg }) => ({ day, reg })));
 
-      // Subject scores
+      // Subject scores within period
       const qMap: Record<string, string> = {};
       (questions ?? []).forEach((q: any) => { qMap[q.id] = q.subject_id; });
       const subjStats: Record<string, { correct: number; total: number }> = {};
@@ -88,26 +85,29 @@ export const Statistics = () => {
       })).filter((s) => s.avg > 0);
       setSubjectScores(subjScores);
 
-      // Monthly trend - last 4 weeks
-      const trend: { w: string; score: number }[] = [];
-      for (let i = 3; i >= 0; i--) {
-        const start = new Date(now); start.setDate(now.getDate() - (i + 1) * 7);
-        const end = new Date(now); end.setDate(now.getDate() - i * 7);
+      // Trend - split period into 4 segments
+      const segments = 4;
+      const segMs = (now.getTime() - start.getTime()) / segments;
+      const segLabels = ["الربع ١", "الربع ٢", "الربع ٣", "الربع ٤"];
+      const trendData: { w: string; score: number }[] = [];
+      for (let i = 0; i < segments; i++) {
+        const segStart = new Date(start.getTime() + i * segMs);
+        const segEnd = new Date(start.getTime() + (i + 1) * segMs);
         const wAtt = att.filter((a: any) => {
           const d = new Date(a.attempted_at);
-          return d >= start && d < end;
+          return d >= segStart && d < segEnd;
         });
         const wCorrect = wAtt.filter((a: any) => a.is_correct).length;
-        trend.push({
-          w: `الأسبوع ${["١", "٢", "٣", "٤"][3 - i]}`,
+        trendData.push({
+          w: segLabels[i],
           score: wAtt.length > 0 ? Math.round((wCorrect / wAtt.length) * 100) : 0,
         });
       }
-      setMonthlyTrend(trend);
+      setTrend(trendData);
 
       setLoading(false);
     })();
-  }, []);
+  }, [period]);
 
   if (loading) {
     return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -115,19 +115,24 @@ export const Statistics = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <p className="text-sm text-muted-foreground">عرض البيانات لـ <span className="font-bold text-foreground">{periodLabels[period]}</span></p>
+        <PeriodFilter value={period} onChange={setPeriod} />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard label="متوسط النقاط العام" value={avgScore.toString()} icon={Target} hint="نسبة الإجابات الصحيحة %" tone="primary" />
-        <StatCard label="الطالبات المرتبطات بأولياء الأمور" value={linkedStudents.toLocaleString("ar")} icon={LinkIcon} hint={`${linkedPct}% من إجمالي الطالبات`} tone="gold" />
-        <StatCard label="تسجيلات الأسبوع" value={weekCount.toLocaleString("ar")} icon={CalendarDays} hint="آخر 7 أيام" tone="info" />
-        <StatCard label="تسجيلات الشهر" value={monthCount.toLocaleString("ar")} icon={CalendarRange} hint="آخر 30 يوماً" tone="success" />
+        <StatCard label="متوسط النقاط في الفترة" value={avgScore.toString()} icon={Target} hint="نسبة الإجابات الصحيحة %" tone="primary" />
+        <StatCard label="الطالبات المرتبطات" value={linkedStudents.toLocaleString("ar")} icon={LinkIcon} hint={`${linkedPct}% من إجمالي الطالبات`} tone="gold" />
+        <StatCard label="تسجيلات الفترة" value={periodRegistrations.toLocaleString("ar")} icon={CalendarDays} hint={periodLabels[period]} tone="info" />
+        <StatCard label="محاولات الاختبار" value={periodAttempts.toLocaleString("ar")} icon={TrendingUp} hint="عدد المحاولات في الفترة" tone="success" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
-          <h3 className="font-display text-lg font-bold mb-1">التسجيلات اليومية - آخر أسبوع</h3>
-          <p className="text-sm text-muted-foreground mb-5">عدد الحسابات الجديدة لكل يوم</p>
+          <h3 className="font-display text-lg font-bold mb-1">التسجيلات اليومية</h3>
+          <p className="text-sm text-muted-foreground mb-5">عدد الحسابات الجديدة لكل يوم خلال {periodLabels[period]}</p>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={weeklyData}>
+            <BarChart data={dailyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" style={{ fontSize: 12, fontFamily: 'Tajawal' }} />
               <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: 12 }} allowDecimals={false} />
@@ -139,9 +144,9 @@ export const Statistics = () => {
 
         <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <h3 className="font-display text-lg font-bold mb-1">متوسط النقاط حسب المادة</h3>
-          <p className="text-sm text-muted-foreground mb-5">نسبة الإجابات الصحيحة لكل مادة</p>
+          <p className="text-sm text-muted-foreground mb-5">نسبة الإجابات الصحيحة لكل مادة في الفترة المختارة</p>
           {subjectScores.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-12">لا توجد محاولات اختبار بعد</p>
+            <p className="text-center text-sm text-muted-foreground py-12">لا توجد محاولات اختبار في هذه الفترة</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={subjectScores} layout="vertical">
@@ -159,17 +164,17 @@ export const Statistics = () => {
       <div className="bg-gradient-primary rounded-2xl p-6 lg:p-8 text-primary-foreground shadow-elegant">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div>
-            <h3 className="font-display text-xl lg:text-2xl font-extrabold">تطور المتوسط العام خلال الشهر</h3>
-            <p className="text-primary-foreground/80 mt-2">نسبة الإجابات الصحيحة عبر آخر 4 أسابيع</p>
+            <h3 className="font-display text-xl lg:text-2xl font-extrabold">تطور المتوسط خلال {periodLabels[period]}</h3>
+            <p className="text-primary-foreground/80 mt-2">نسبة الإجابات الصحيحة عبر الفترة المختارة</p>
           </div>
           <div className="text-center">
             <p className="text-primary-foreground/70 text-sm">المتوسط الحالي</p>
-            <p className="font-display text-5xl font-extrabold text-accent">{monthlyTrend[monthlyTrend.length - 1]?.score ?? 0}<span className="text-2xl text-primary-foreground/60">/100</span></p>
+            <p className="font-display text-5xl font-extrabold text-accent">{trend[trend.length - 1]?.score ?? 0}<span className="text-2xl text-primary-foreground/60">/100</span></p>
           </div>
         </div>
         <div className="mt-6 bg-primary-foreground/10 rounded-xl p-4 backdrop-blur-sm">
           <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={monthlyTrend}>
+            <LineChart data={trend}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
               <XAxis dataKey="w" stroke="rgba(255,255,255,0.7)" style={{ fontSize: 12, fontFamily: 'Tajawal' }} />
               <YAxis stroke="rgba(255,255,255,0.7)" style={{ fontSize: 12 }} domain={[0, 100]} />
