@@ -146,7 +146,7 @@ const Landing = () => {
             <div className="flex w-max gap-12 px-6 animate-marquee-rtl group-hover:[animation-play-state:paused]">
               {[...stats, ...stats].map((s, idx) => (
                 <div key={idx} className="flex items-center gap-3 shrink-0" dir="rtl">
-                  <p className="font-display text-3xl md:text-4xl font-extrabold text-gradient-primary leading-none">
+                  <p className="font-display text-3xl md:text-4xl font-extrabold leading-none" style={gradientStyle}>
                     {s.v}
                   </p>
                   <p className="text-sm md:text-base text-muted-foreground font-medium whitespace-nowrap">
