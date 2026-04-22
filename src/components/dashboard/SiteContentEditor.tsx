@@ -123,11 +123,55 @@ export const SiteContentEditor = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="الشارة العلوية" value={hero.badge} onChange={(v) => update("hero", { badge: v })} />
             <Field label="السطر الأول من العنوان" value={hero.title_line1} onChange={(v) => update("hero", { title_line1: v })} />
-            <Field label="السطر الثاني (مميّز)" value={hero.title_line2} onChange={(v) => update("hero", { title_line2: v })} />
+            <Field label="السطر الثاني (مميّز بالتدرج)" value={hero.title_line2} onChange={(v) => update("hero", { title_line2: v })} />
             <Field label="نص الزر الرئيسي" value={hero.cta_primary} onChange={(v) => update("hero", { cta_primary: v })} />
             <Field label="نص الزر الثانوي" value={hero.cta_secondary} onChange={(v) => update("hero", { cta_secondary: v })} />
           </div>
           <TextField label="الوصف" value={hero.description} onChange={(v) => update("hero", { description: v })} />
+
+          {/* Gradient controls for the highlighted title */}
+          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
+            <Label className="font-bold block">تدرج لون السطر المميّز</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <ColorField
+                label="لون البداية"
+                value={hero.gradient_from ?? "#006B3A"}
+                onChange={(v) => update("hero", { gradient_from: v })}
+              />
+              <ColorField
+                label="لون النهاية"
+                value={hero.gradient_to ?? "#1F8B5C"}
+                onChange={(v) => update("hero", { gradient_to: v })}
+              />
+              <div className="space-y-2">
+                <Label className="font-bold">زاوية التدرج (°)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={360}
+                  value={hero.gradient_angle ?? 135}
+                  onChange={(e) => update("hero", { gradient_angle: Math.max(0, Math.min(360, Number(e.target.value) || 0)) })}
+                />
+              </div>
+            </div>
+            {/* Preview — uses the same safe technique as the live page */}
+            <div className="rounded-lg border border-border bg-card p-5">
+              <p className="text-xs text-muted-foreground mb-2">معاينة مباشرة (نفس طريقة عرض الجوال)</p>
+              <p
+                className="font-display text-3xl md:text-4xl font-extrabold leading-tight"
+                style={{
+                  backgroundImage: `linear-gradient(${hero.gradient_angle ?? 135}deg, ${hero.gradient_from ?? "#006B3A"}, ${hero.gradient_to ?? "#1F8B5C"})`,
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  color: "transparent",
+                }}
+              >
+                {hero.title_line2 || "السطر المميّز"}
+              </p>
+            </div>
+          </div>
+
 
           <div>
             <Label className="font-bold mb-2 block">الإحصائيات (4 أرقام)</Label>
