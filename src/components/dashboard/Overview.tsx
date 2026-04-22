@@ -29,7 +29,7 @@ export const Overview = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="lg:col-span-2 bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-display text-lg font-bold">التسجيلات خلال الأشهر الأخيرة</h3>
@@ -62,7 +62,7 @@ export const Overview = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <div className="flex items-center gap-2 mb-6">
             <Award className="w-5 h-5 text-primary" />
             <h3 className="font-display text-lg font-bold">توزيع الاختبارات</h3>

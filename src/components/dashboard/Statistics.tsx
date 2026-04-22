@@ -28,7 +28,7 @@ export const Statistics = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <h3 className="font-display text-lg font-bold mb-1">التسجيلات اليومية - هذا الأسبوع</h3>
           <p className="text-sm text-muted-foreground mb-5">عدد الحسابات الجديدة لكل يوم</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -42,7 +42,7 @@ export const Statistics = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <h3 className="font-display text-lg font-bold mb-1">متوسط النقاط حسب المادة</h3>
           <p className="text-sm text-muted-foreground mb-5">أداء الطالبات في الاختبارات</p>
           <ResponsiveContainer width="100%" height={280}>

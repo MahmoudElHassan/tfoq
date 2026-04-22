@@ -23,7 +23,7 @@ export const Teachers = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="lg:col-span-2 bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-display text-xl font-bold">المعلمات والمواد المُكلفات بها</h3>
@@ -65,7 +65,7 @@ export const Teachers = () => {
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
           <div className="flex items-center gap-2 mb-6">
             <ClipboardCheck className="w-5 h-5 text-primary" />
             <h3 className="font-display text-xl font-bold">المهام الحالية</h3>

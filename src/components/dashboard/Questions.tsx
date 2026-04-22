@@ -38,7 +38,7 @@ export const Questions = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+      <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div>
             <h3 className="font-display text-xl font-bold">بنك الأسئلة</h3>
@@ -84,7 +84,7 @@ export const Questions = () => {
 
       <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[760px]">
             <thead className="bg-secondary/50 border-b border-border">
               <tr>
                 <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">السؤال</th>
