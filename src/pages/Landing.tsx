@@ -47,8 +47,8 @@ const Landing = () => {
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/15 rounded-full blur-3xl" />
 
-        <div className="container relative py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="animate-fade-in order-2 lg:order-1">
+        <div className="container relative py-12 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="hidden lg:block animate-fade-in order-2 lg:order-1">
             <img src={heroImg} alt="طالبات يتعلمن في منصة تفوق" width={1280} height={896}
               className="w-full rounded-3xl shadow-elegant border-4 border-card" />
           </div>
@@ -78,17 +78,29 @@ const Landing = () => {
                 </Button>
               </a>
             </div>
-
-            <div className="mt-10 grid grid-cols-4 gap-4">
-              {(hero.stats ?? []).map((s: any) => (
-                <div key={s.l} className="text-center">
-                  <p className="font-display text-2xl md:text-3xl font-extrabold bg-gradient-primary bg-clip-text text-transparent">{s.v}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{s.l}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
+
+        {/* Animated stats marquee (right → left) */}
+        {(hero.stats ?? []).length > 0 && (
+          <div className="relative pb-12 lg:pb-16">
+            <div className="group overflow-hidden mx-auto max-w-6xl border-y border-primary/15 bg-card/70 backdrop-blur-sm py-5" dir="ltr">
+              <div className="flex w-max gap-12 px-6 animate-marquee-rtl group-hover:[animation-play-state:paused]">
+                {[...(hero.stats ?? []), ...(hero.stats ?? [])].map((s: any, idx: number) => (
+                  <div key={idx} className="flex items-center gap-3 shrink-0" dir="rtl">
+                    <p className="font-display text-3xl md:text-4xl font-extrabold bg-gradient-primary bg-clip-text text-transparent leading-none">
+                      {s.v}
+                    </p>
+                    <p className="text-sm md:text-base text-muted-foreground font-medium whitespace-nowrap">
+                      {s.l}
+                    </p>
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* FEATURES */}
