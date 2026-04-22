@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Sidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { Overview } from "@/components/dashboard/Overview";
 import { Statistics } from "@/components/dashboard/Statistics";
@@ -23,6 +23,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
 
 const AdminDashboard = () => {
   const [section, setSection] = useState("overview");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleExport = () => {
     const overviewSheet = [
@@ -50,8 +51,15 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gradient-soft flex">
       <Sidebar active={section} onChange={setSection} />
       <main className="flex-1 min-w-0 flex flex-col">
-        <Header title={meta.title} subtitle={meta.subtitle} onExport={handleExport} />
-        <div className="flex-1 p-6 lg:p-8">
+        <Header
+          title={meta.title}
+          subtitle={meta.subtitle}
+          onExport={handleExport}
+          mobileMenu={
+            <MobileSidebar active={section} onChange={setSection} open={mobileOpen} onOpenChange={setMobileOpen} />
+          }
+        />
+        <div className="flex-1 p-4 sm:p-6 lg:p-8">
           {section === "overview" && <Overview />}
           {section === "stats" && <Statistics />}
           {section === "users" && <UsersManagement />}
