@@ -73,12 +73,12 @@ export const UsersManagement = ({ filterRole }: { filterRole?: string }) => {
 
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
-      <div className="p-5 border-b border-border/50 flex items-center gap-3">
-        <div className="relative flex-1">
+      <div className="p-4 sm:p-5 border-b border-border/50 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحثي بالاسم أو البريد..." className="pr-10" />
         </div>
-        <Badge variant="secondary" className="font-bold">{filtered.length} مستخدم</Badge>
+        <Badge variant="secondary" className="font-bold shrink-0">{filtered.length} مستخدم</Badge>
       </div>
 
       <div className="overflow-x-auto">
