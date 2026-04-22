@@ -23,6 +23,9 @@ const heroDefaults = {
   cta_primary: "ابدئي رحلتك الآن",
   cta_secondary: "استكشفي المميزات",
   image_url: "",
+  gradient_from: "#006B3A",
+  gradient_to: "#1F8B5C",
+  gradient_angle: 135,
   stats: [
     { v: "1,200+", l: "طالبة مسجلة" },
     { v: "5,000+", l: "سؤال تفاعلي" },
@@ -71,6 +74,16 @@ const Landing = () => {
 
   const heroImage = hero.image_url && hero.image_url.length > 0 ? hero.image_url : heroImg;
 
+  // Safe gradient style — applied inline so admin colors render reliably on mobile WebKit
+  const gradientStyle: React.CSSProperties = {
+    backgroundImage: `linear-gradient(${hero.gradient_angle ?? 135}deg, ${hero.gradient_from ?? "#006B3A"}, ${hero.gradient_to ?? "#1F8B5C"})`,
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    color: "transparent",
+  };
+
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SiteNav />
@@ -104,7 +117,7 @@ const Landing = () => {
             </div>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-foreground leading-tight text-balance">
               {hero.title_line1}
-              <span className="block text-gradient-primary mt-2">
+              <span className="block mt-2 font-display" style={gradientStyle}>
                 {hero.title_line2}
               </span>
             </h1>
@@ -133,7 +146,7 @@ const Landing = () => {
             <div className="flex w-max gap-12 px-6 animate-marquee-rtl group-hover:[animation-play-state:paused]">
               {[...stats, ...stats].map((s, idx) => (
                 <div key={idx} className="flex items-center gap-3 shrink-0" dir="rtl">
-                  <p className="font-display text-3xl md:text-4xl font-extrabold text-gradient-primary leading-none">
+                  <p className="font-display text-3xl md:text-4xl font-extrabold leading-none" style={gradientStyle}>
                     {s.v}
                   </p>
                   <p className="text-sm md:text-base text-muted-foreground font-medium whitespace-nowrap">
