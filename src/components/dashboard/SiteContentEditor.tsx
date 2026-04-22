@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Save, Loader2, Layout, FileText, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Save, Loader2, Layout, FileText, Upload, Image as ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
+
 type Section = { id: string; content: any };
 
 export const SiteContentEditor = () => {
   const [sections, setSections] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase.from("site_content").select("*").then(({ data }) => {
@@ -34,6 +38,32 @@ export const SiteContentEditor = () => {
     else toast.success("تم حفظ التغييرات بنجاح");
   };
 
+  const handleHeroImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("الرجاء اختيار ملف صورة صالح");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error("حجم الصورة يتجاوز 2 ميغابايت", { description: "الرجاء اختيار صورة أصغر." });
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `hero/${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("site-images")
+      .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+    if (upErr) {
+      setUploading(false);
+      toast.error("فشل رفع الصورة", { description: upErr.message });
+      return;
+    }
+    const { data: pub } = supabase.storage.from("site-images").getPublicUrl(path);
+    update("hero", { image_url: pub.publicUrl });
+    setUploading(false);
+    toast.success("تم رفع الصورة، اضغطي حفظ التغييرات لتثبيتها");
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   const hero = sections.hero ?? {};
@@ -50,6 +80,46 @@ export const SiteContentEditor = () => {
         </TabsList>
 
         <TabsContent value="hero" className="space-y-4">
+          {/* Hero image upload */}
+          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                <Label className="font-bold m-0">صورة الهيرو</Label>
+                <span className="text-xs text-muted-foreground">(الحد الأقصى 2 ميغابايت — JPG / PNG / WEBP)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleHeroImageUpload(f); e.currentTarget.value = ""; }}
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading} className="gap-2">
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? "جارٍ الرفع..." : "رفع صورة"}
+                </Button>
+                {hero.image_url && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => update("hero", { image_url: "" })} className="gap-2 text-destructive hover:text-destructive">
+                    <X className="w-4 h-4" />إزالة
+                  </Button>
+                )}
+              </div>
+            </div>
+            {hero.image_url && (
+              <div className="rounded-lg overflow-hidden border border-border bg-card">
+                <img src={hero.image_url} alt="معاينة صورة الهيرو" className="w-full max-h-64 object-cover" />
+              </div>
+            )}
+            <Input
+              value={hero.image_url ?? ""}
+              onChange={(e) => update("hero", { image_url: e.target.value })}
+              placeholder="أو ألصقي رابط صورة مباشرًا"
+              dir="ltr"
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="الشارة العلوية" value={hero.badge} onChange={(v) => update("hero", { badge: v })} />
             <Field label="السطر الأول من العنوان" value={hero.title_line1} onChange={(v) => update("hero", { title_line1: v })} />
