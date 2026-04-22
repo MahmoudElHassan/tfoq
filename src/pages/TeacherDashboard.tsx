@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, BookOpen, Users, Target, TrendingUp, Loader2, ShieldAlert } from "lucide-react";
+import { Plus, Edit2, Trash2, BookOpen, Users, Target, TrendingUp, Loader2, ShieldAlert, GraduationCap } from "lucide-react";
+import { LearningManagement } from "@/components/learning/LearningManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -270,11 +271,16 @@ const TeacherDashboard = () => {
         ) : loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
-          <Tabs defaultValue="questions" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="questions" className="gap-2"><BookOpen className="w-4 h-4" />الأسئلة</TabsTrigger>
+          <Tabs defaultValue="learning" className="w-full">
+            <TabsList className="mb-6 flex-wrap h-auto">
+              <TabsTrigger value="learning" className="gap-2"><GraduationCap className="w-4 h-4" />إدارة التعلّم</TabsTrigger>
+              <TabsTrigger value="questions" className="gap-2"><BookOpen className="w-4 h-4" />بنك الأسئلة</TabsTrigger>
               <TabsTrigger value="students" className="gap-2"><Users className="w-4 h-4" />نتائج الطالبات</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="learning">
+              <LearningManagement />
+            </TabsContent>
 
             <TabsContent value="questions">
               <div className="bg-card rounded-2xl shadow-card border border-border overflow-hidden">

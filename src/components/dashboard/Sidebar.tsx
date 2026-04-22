@@ -16,7 +16,7 @@ const items = [
   { id: "stats", label: "الإحصائيات التفصيلية", icon: BarChart3 },
   { id: "users", label: "إدارة المستخدمين", icon: UsersRound },
   { id: "content", label: "تحرير الصفحة الرئيسية", icon: FileEdit },
-  { id: "questions", label: "إدارة الأسئلة", icon: BookOpenCheck },
+  { id: "questions", label: "إدارة التعلّم", icon: BookOpenCheck },
   { id: "teachers", label: "المعلمات والتفويض", icon: UserCog },
   { id: "students", label: "الطالبات", icon: GraduationCap },
   { id: "parents", label: "أولياء الأمور", icon: Users },

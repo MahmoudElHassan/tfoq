@@ -5,7 +5,7 @@ import { Sidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { Overview } from "@/components/dashboard/Overview";
 import { Statistics } from "@/components/dashboard/Statistics";
-import { Questions } from "@/components/dashboard/Questions";
+import { LearningManagement } from "@/components/learning/LearningManagement";
 import { Teachers } from "@/components/dashboard/Teachers";
 import { UsersManagement } from "@/components/dashboard/UsersManagement";
 import { SiteContentEditor } from "@/components/dashboard/SiteContentEditor";
@@ -16,7 +16,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   stats: { title: "الإحصائيات التفصيلية", subtitle: "تحليلات معمّقة للأداء والتسجيلات" },
   users: { title: "إدارة المستخدمين", subtitle: "تفعيل، تعطيل، تغيير الأدوار وحذف الحسابات" },
   content: { title: "تحرير الصفحة الرئيسية", subtitle: "تعديل الهيرو، المميزات، الفوتر وكل العبارات" },
-  questions: { title: "إدارة الأسئلة", subtitle: "بنك أسئلة التحصيلي والقدرات" },
+  questions: { title: "إدارة التعلّم", subtitle: "مراكز الاختبارات المحاكية والتعلم باللعب والفيديو" },
   teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
   students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
   parents: { title: "أولياء الأمور", subtitle: "حسابات أولياء الأمور المرتبطة" },
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
           {section === "stats" && <Statistics />}
           {section === "users" && <UsersManagement />}
           {section === "content" && <SiteContentEditor />}
-          {section === "questions" && <Questions />}
+          {section === "questions" && <LearningManagement />}
           {section === "teachers" && <Teachers />}
           {section === "students" && <UsersManagement filterRole="student" />}
           {section === "parents" && <UsersManagement filterRole="parent" />}
