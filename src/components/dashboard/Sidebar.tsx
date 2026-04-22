@@ -1,6 +1,9 @@
 import { LayoutDashboard, BarChart3, BookOpenCheck, Users, GraduationCap, UserCog, Settings, LogOut, UsersRound, FileEdit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface SidebarProps {
   active: string;
@@ -18,11 +21,11 @@ const items = [
   { id: "parents", label: "أولياء الأمور", icon: Users },
 ];
 
-export const Sidebar = ({ active, onChange }: SidebarProps) => {
+const SidebarInner = ({ active, onChange }: SidebarProps) => {
   const { user, signOut } = useAuth();
   const initial = (user?.email?.[0] ?? "م").toUpperCase();
   return (
-    <aside className="hidden lg:flex w-72 shrink-0 flex-col bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shadow-elegant">
@@ -77,6 +80,47 @@ export const Sidebar = ({ active, onChange }: SidebarProps) => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+export const Sidebar = ({ active, onChange }: SidebarProps) => {
+  return (
+    <aside className="hidden lg:flex w-72 shrink-0 flex-col sticky top-0 h-screen">
+      <SidebarInner active={active} onChange={onChange} />
     </aside>
+  );
+};
+
+interface MobileSidebarProps extends SidebarProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const MobileSidebar = ({ active, onChange, open, onOpenChange }: MobileSidebarProps) => {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>
+        <button
+          className="lg:hidden w-11 h-11 rounded-xl bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors shrink-0"
+          aria-label="فتح القائمة"
+        >
+          <Menu className="w-5 h-5 text-secondary-foreground" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="right" className="p-0 w-80 max-w-[85vw] border-sidebar-border">
+        <VisuallyHidden>
+          <SheetTitle>القائمة الرئيسية</SheetTitle>
+          <SheetDescription>تنقل بين أقسام لوحة التحكم</SheetDescription>
+        </VisuallyHidden>
+        <SidebarInner
+          active={active}
+          onChange={(id) => {
+            onChange(id);
+            onOpenChange(false);
+          }}
+        />
+      </SheetContent>
+    </Sheet>
   );
 };
