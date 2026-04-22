@@ -16,6 +16,8 @@ export const SiteContentEditor = () => {
   const [sections, setSections] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase.from("site_content").select("*").then(({ data }) => {
@@ -34,6 +36,32 @@ export const SiteContentEditor = () => {
     setSaving(null);
     if (error) toast.error("فشل الحفظ");
     else toast.success("تم حفظ التغييرات بنجاح");
+  };
+
+  const handleHeroImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("الرجاء اختيار ملف صورة صالح");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error("حجم الصورة يتجاوز 2 ميغابايت", { description: "الرجاء اختيار صورة أصغر." });
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `hero/${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("site-images")
+      .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+    if (upErr) {
+      setUploading(false);
+      toast.error("فشل رفع الصورة", { description: upErr.message });
+      return;
+    }
+    const { data: pub } = supabase.storage.from("site-images").getPublicUrl(path);
+    update("hero", { image_url: pub.publicUrl });
+    setUploading(false);
+    toast.success("تم رفع الصورة، اضغطي حفظ التغييرات لتثبيتها");
   };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
