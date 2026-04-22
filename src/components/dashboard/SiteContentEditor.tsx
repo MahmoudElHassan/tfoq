@@ -223,6 +223,20 @@ const Field = ({ label, value, onChange }: { label: string; value: string; onCha
 const TextField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
   <div className="space-y-2"><Label className="font-bold">{label}</Label><Textarea value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={3} /></div>
 );
+const ColorField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+  <div className="space-y-2">
+    <Label className="font-bold">{label}</Label>
+    <div className="flex items-center gap-2">
+      <input
+        type="color"
+        value={value || "#000000"}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 w-14 rounded-md border border-border bg-background cursor-pointer p-1"
+      />
+      <Input value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder="#006B3A" dir="ltr" />
+    </div>
+  </div>
+);
 const SaveButton = ({ onClick, loading }: { onClick: () => void; loading: boolean }) => (
   <Button onClick={onClick} disabled={loading} className="bg-gradient-primary text-primary-foreground gap-2">
     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
