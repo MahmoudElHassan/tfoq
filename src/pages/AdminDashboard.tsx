@@ -9,6 +9,7 @@ import { Questions } from "@/components/dashboard/Questions";
 import { Teachers } from "@/components/dashboard/Teachers";
 import { UsersManagement } from "@/components/dashboard/UsersManagement";
 import { SiteContentEditor } from "@/components/dashboard/SiteContentEditor";
+import { AdminSettings } from "@/components/dashboard/AdminSettings";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   overview: { title: "النظرة العامة", subtitle: "أهلاً بكِ، إليكِ ملخص أداء المنصة اليوم" },
@@ -19,6 +20,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
   students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
   parents: { title: "أولياء الأمور", subtitle: "حسابات أولياء الأمور المرتبطة" },
+  settings: { title: "الإعدادات", subtitle: "إدارة الحساب وكلمة المرور" },
 };
 
 const AdminDashboard = () => {
@@ -68,6 +70,7 @@ const AdminDashboard = () => {
           {section === "teachers" && <Teachers />}
           {section === "students" && <UsersManagement filterRole="student" />}
           {section === "parents" && <UsersManagement filterRole="parent" />}
+          {section === "settings" && <AdminSettings />}
         </div>
       </main>
     </div>

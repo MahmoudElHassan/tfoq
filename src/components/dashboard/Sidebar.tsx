@@ -9,6 +9,8 @@ interface SidebarProps {
   onChange: (id: string) => void;
 }
 
+const isSettings = (s: string) => s === "settings";
+
 const items = [
   { id: "overview", label: "النظرة العامة", icon: LayoutDashboard },
   { id: "stats", label: "الإحصائيات التفصيلية", icon: BarChart3 },
@@ -61,7 +63,15 @@ const SidebarInner = ({ active, onChange }: SidebarProps) => {
       </nav>
 
       <div className="p-4 border-t border-sidebar-border space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent/50 transition-colors">
+        <button
+          onClick={() => onChange("settings")}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors",
+            isSettings(active)
+              ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft border-r-4 border-sidebar-primary"
+              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50"
+          )}
+        >
           <Settings className="w-5 h-5" />
           <span>الإعدادات</span>
         </button>
