@@ -51,7 +51,7 @@ const Auth = () => {
     try {
       if (isSignup) {
         const parsed = signupSchema.parse(form);
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: parsed.email,
           password: parsed.password,
           options: {
@@ -65,6 +65,10 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        // Supabase يعيد user بدون identities إذا كان البريد مسجّلاً مسبقاً
+        if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+          throw new Error("already registered");
+        }
         toast.success("تم إنشاء حسابك بنجاح!", { description: "جاري تحويلك للوحة التحكم..." });
       } else {
         const parsed = loginSchema.parse({ email: form.email, password: form.password });
