@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      learning_game_items: {
+        Row: {
+          back_text: string | null
+          correct_option: string | null
+          created_at: string
+          front_text: string | null
+          game_id: string
+          id: string
+          option_a: string | null
+          option_b: string | null
+          option_c: string | null
+          option_d: string | null
+          position: number
+          question_text: string | null
+        }
+        Insert: {
+          back_text?: string | null
+          correct_option?: string | null
+          created_at?: string
+          front_text?: string | null
+          game_id: string
+          id?: string
+          option_a?: string | null
+          option_b?: string | null
+          option_c?: string | null
+          option_d?: string | null
+          position?: number
+          question_text?: string | null
+        }
+        Update: {
+          back_text?: string | null
+          correct_option?: string | null
+          created_at?: string
+          front_text?: string | null
+          game_id?: string
+          id?: string
+          option_a?: string | null
+          option_b?: string | null
+          option_c?: string | null
+          option_d?: string | null
+          position?: number
+          question_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_game_items_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "learning_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_games: {
+        Row: {
+          content_kind: Database["public"]["Enums"]["game_content_kind"]
+          created_at: string
+          created_by: string
+          description: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: string
+          subject_id: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["content_visibility"]
+        }
+        Insert: {
+          content_kind?: Database["public"]["Enums"]["game_content_kind"]
+          created_at?: string
+          created_by: string
+          description?: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: string
+          subject_id: string
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+        }
+        Update: {
+          content_kind?: Database["public"]["Enums"]["game_content_kind"]
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: string
+          subject_id?: string
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_games_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_videos: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          subject_id: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["content_visibility"]
+          youtube_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          subject_id: string
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+          youtube_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          subject_id?: string
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+          youtube_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_videos_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parent_student_links: {
         Row: {
           created_at: string
@@ -171,6 +318,103 @@ export type Database = {
           },
         ]
       }
+      quiz_template_questions: {
+        Row: {
+          correct_option: string
+          created_at: string
+          explanation: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          points: number
+          position: number
+          question_text: string
+          template_id: string
+        }
+        Insert: {
+          correct_option: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          points?: number
+          position?: number
+          question_text: string
+          template_id: string
+        }
+        Update: {
+          correct_option?: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string
+          option_d?: string
+          points?: number
+          position?: number
+          question_text?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_template_questions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          subject_id: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["content_visibility"]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          subject_id: string
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          subject_id?: string
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["content_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_templates_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_content: {
         Row: {
           content: Json
@@ -272,11 +516,58 @@ export type Database = {
         }
         Relationships: []
       }
+      video_views: {
+        Row: {
+          completed_half: boolean
+          created_at: string
+          id: string
+          last_watched_at: string
+          student_id: string
+          video_id: string
+          watched_seconds: number
+        }
+        Insert: {
+          completed_half?: boolean
+          created_at?: string
+          id?: string
+          last_watched_at?: string
+          student_id: string
+          video_id: string
+          watched_seconds?: number
+        }
+        Update: {
+          completed_half?: boolean
+          created_at?: string
+          id?: string
+          last_watched_at?: string
+          student_id?: string
+          video_id?: string
+          watched_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_views_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "learning_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_access_content: {
+        Args: {
+          _owner_id: string
+          _subject_id: string
+          _user_id: string
+          _visibility: Database["public"]["Enums"]["content_visibility"]
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -291,7 +582,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "teacher" | "parent" | "student"
+      content_visibility: "private" | "subject" | "public"
       difficulty_level: "easy" | "medium" | "hard"
+      game_content_kind: "mcq" | "concept"
+      game_type: "wheel" | "memory"
       subject_type: "tahseeli" | "qudurat"
     }
     CompositeTypes: {
@@ -421,7 +715,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "teacher", "parent", "student"],
+      content_visibility: ["private", "subject", "public"],
       difficulty_level: ["easy", "medium", "hard"],
+      game_content_kind: ["mcq", "concept"],
+      game_type: ["wheel", "memory"],
       subject_type: ["tahseeli", "qudurat"],
     },
   },
