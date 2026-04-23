@@ -102,6 +102,7 @@ const Auth = () => {
       const msg = err?.errors?.[0]?.message || err?.message || "حدث خطأ";
       const friendly = msg.includes("Invalid login") ? "بيانات الدخول غير صحيحة"
         : msg.includes("already registered") ? "هذا البريد مسجّل مسبقاً، حاول تسجيل الدخول"
+        : msg === "account_pending" ? "حسابكِ بانتظار تفعيل مديرة النظام"
         : msg;
       toast.error("تعذّر إكمال العملية", { description: friendly });
     } finally {
