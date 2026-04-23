@@ -140,17 +140,21 @@ const Quiz = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* الـ Wheel */}
-          <div className="bg-card rounded-3xl p-8 shadow-elegant border border-border flex flex-col items-center">
-            <div className="relative w-72 h-72 lg:w-80 lg:h-80">
+          <div className="bg-card rounded-3xl p-8 shadow-elegant border border-border flex flex-col items-center" style={{ contain: "layout paint" }}>
+            <div className="relative w-72 h-72 lg:w-80 lg:h-80" style={{ isolation: "isolate" }}>
               {/* مؤشر */}
               <div className="absolute -top-2 right-1/2 translate-x-1/2 z-10 w-0 h-0 border-l-[16px] border-r-[16px] border-t-[28px] border-l-transparent border-r-transparent border-t-destructive drop-shadow-lg" />
               {/* العجلة */}
               <div ref={wheelRef}
-                className="w-full h-full rounded-full border-8 border-card shadow-elegant transition-transform ease-out"
+                className="w-full h-full rounded-full border-8 border-card shadow-elegant transition-transform ease-out transform-gpu"
                 style={{
-                  transform: `rotate(${rotation}deg)`,
+                  transform: `translateZ(0) rotate(${rotation}deg)`,
                   transitionDuration: spinning ? "3500ms" : "0ms",
+                  transitionTimingFunction: "cubic-bezier(0.17, 0.67, 0.31, 1)",
                   background: `conic-gradient(${wheelColors.map((c, i) => `${c} ${i * 45}deg ${(i + 1) * 45}deg`).join(", ")})`,
+                  willChange: "transform",
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
                 }}>
                 <div className="absolute inset-0 flex items-center justify-center">
                   {Array.from({ length: 8 }).map((_, i) => (
