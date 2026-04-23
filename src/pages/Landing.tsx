@@ -241,10 +241,10 @@ const Landing = () => {
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-primary p-7 sm:p-10 lg:p-16 text-center shadow-elegant animate-rise">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 80%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
             <div className="relative">
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary-foreground">
+              <h2 className="t-h1 text-primary-foreground">
                 مستعدة لتحقيق أعلى الدرجات؟
               </h2>
-              <p className="text-sm sm:text-base text-primary-foreground/85 mt-3 sm:mt-4 max-w-xl mx-auto">
+              <p className="t-body text-primary-foreground/85 mt-3 sm:mt-4 max-w-xl mx-auto">
                 انضمي اليوم إلى مئات الطالبات اللواتي يحضّرن لاختباراتهن بثقة عبر منصة تفوّق
               </p>
               <Link to="/auth?mode=signup">
