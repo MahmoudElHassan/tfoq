@@ -1,7 +1,17 @@
-import { Compass, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Compass, Eye, Home, ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const aboutDefaults = {
   eyebrow: "من نحن",
@@ -18,7 +28,26 @@ const About = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SiteNav />
 
-      <section className="relative overflow-hidden py-14 sm:py-16 md:py-20">
+      <div className="container pt-6 sm:pt-8">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/" className="inline-flex items-center gap-1.5">
+                  <Home className="w-4 h-4" />
+                  الرئيسية
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>من نحن</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <section className="relative overflow-hidden py-10 sm:py-14 md:py-16">
         <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-primary/10 rounded-full blur-3xl animate-blob" />
         <div className="absolute -bottom-40 -right-32 w-[26rem] h-[26rem] bg-accent/15 rounded-full blur-3xl animate-blob [animation-delay:-6s]" />
 
@@ -57,6 +86,15 @@ const About = () => {
               )}
             </div>
           )}
+
+          <div className="mt-10 sm:mt-12 flex justify-center">
+            <Link to="/">
+              <Button variant="outline" size="lg" className="gap-2 border-2">
+                <ArrowRight className="w-5 h-5" />
+                العودة للصفحة الرئيسية
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
