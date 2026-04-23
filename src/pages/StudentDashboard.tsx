@@ -180,7 +180,7 @@ const StudentDashboard = () => {
                       <span>•</span>
                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {t.duration_minutes} د</span>
                     </div>
-                    <Button onClick={() => navigate(`/quiz?template=${t.id}`)}
+                    <Button onClick={() => navigate(`/mock-quiz/${t.id}`)}
                       className="mt-4 bg-gradient-primary text-primary-foreground gap-2 w-full">
                       <Play className="w-4 h-4" /> ابدئي الاختبار
                     </Button>

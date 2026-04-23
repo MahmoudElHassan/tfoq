@@ -11,6 +11,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import Quiz from "./pages/Quiz";
+import MockQuiz from "./pages/MockQuiz";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/parent" element={<ParentDashboard />} />
           <Route path="/teacher" element={<TeacherDashboard />} />
           <Route path="/quiz" element={<Quiz />} />
+          <Route path="/mock-quiz/:templateId" element={<MockQuiz />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
