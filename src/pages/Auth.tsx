@@ -121,16 +121,16 @@ const Auth = () => {
             <GraduationCap className="w-8 h-8 text-primary-foreground" />
           </div>
           <div>
-            <p className="font-display text-2xl font-extrabold">منصة تفوّق</p>
-            <p className="text-xs text-muted-foreground">للتحصيلي والقدرات</p>
+            <p className="font-display text-xl sm:text-2xl font-extrabold">منصة تفوّق</p>
+            <p className="t-small text-muted-foreground">للتحصيلي والقدرات</p>
           </div>
         </Link>
 
-        <div className="bg-card rounded-3xl shadow-elegant border border-border p-8 animate-fade-in">
-          <h1 className="font-display text-2xl font-extrabold text-center mb-2">
+        <div className="bg-card rounded-3xl shadow-elegant border border-border p-6 sm:p-8 animate-fade-in">
+          <h1 className="t-h2 text-center mb-2">
             {isSignup ? "إنشاء حساب جديد" : "تسجيل الدخول"}
           </h1>
-          <p className="text-sm text-muted-foreground text-center mb-7">
+          <p className="t-small text-muted-foreground text-center mb-7">
             {isSignup ? "ابدئي رحلتك التعليمية الآن" : "أهلاً بعودتك إلى منصتك"}
           </p>
 
