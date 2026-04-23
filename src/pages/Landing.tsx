@@ -165,17 +165,17 @@ const Landing = () => {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="py-20 bg-card">
+      <section id="features" className="py-14 sm:py-16 md:py-20 bg-card">
         <div className="container">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-sm font-bold text-primary uppercase tracking-wider">{feat.eyebrow}</span>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-foreground mt-3">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12 md:mb-14">
+            <span className="text-xs sm:text-sm font-bold text-primary uppercase tracking-wider">{feat.eyebrow}</span>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground mt-2 sm:mt-3">
               {feat.title}
             </h2>
-            <p className="text-muted-foreground mt-4">{feat.subtitle}</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-3 sm:mt-4">{feat.subtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {features.map((f, i) => {
               const Icon = f.icon;
               const toneCls: Record<string, string> = {
@@ -188,13 +188,13 @@ const Landing = () => {
                 <div
                   key={i}
                   style={{ animationDelay: `${i * 90}ms` }}
-                  className="group relative p-7 rounded-2xl bg-background border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 animate-rise"
+                  className="group relative p-5 sm:p-6 md:p-7 rounded-2xl bg-background border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 animate-rise"
                 >
-                  <div className={`w-14 h-14 rounded-2xl ${toneCls[f.tone]} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                    <Icon className="w-7 h-7" />
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${toneCls[f.tone]} flex items-center justify-center mb-4 sm:mb-5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
                   </div>
-                  <h3 className="font-display text-lg font-bold text-foreground mb-2">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  <h3 className="font-display text-base sm:text-lg font-bold text-foreground mb-1.5 sm:mb-2">{f.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
               );
             })}
@@ -203,13 +203,13 @@ const Landing = () => {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-20 bg-gradient-soft">
+      <section className="py-14 sm:py-16 md:py-20 bg-gradient-soft">
         <div className="container">
-          <div className="text-center mb-14">
-            <span className="text-sm font-bold text-primary uppercase tracking-wider">رحلتك في 3 خطوات</span>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-foreground mt-3">كيف تعمل المنصة؟</h2>
+          <div className="text-center mb-10 sm:mb-12 md:mb-14">
+            <span className="text-xs sm:text-sm font-bold text-primary uppercase tracking-wider">رحلتك في 3 خطوات</span>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground mt-2 sm:mt-3">كيف تعمل المنصة؟</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
             {[
               { n: "١", t: "أنشئي حسابك", d: "سجّلي ببريدك الإلكتروني واختاري دورك (طالبة / ولية أمر / معلمة)", icon: ShieldCheck },
               { n: "٢", t: "ابدئي الاختبار", d: "أديري عجلة الأسئلة واختاري المادة وأجيبي عن الأسئلة", icon: Target },
@@ -220,14 +220,14 @@ const Landing = () => {
                 <div
                   key={i}
                   style={{ animationDelay: `${i * 120}ms` }}
-                  className="relative bg-card rounded-2xl p-8 shadow-card border border-border text-center animate-rise hover:shadow-elegant transition-shadow duration-300"
+                  className="relative bg-card rounded-2xl p-6 sm:p-7 md:p-8 shadow-card border border-border text-center animate-rise hover:shadow-elegant transition-shadow duration-300"
                 >
-                  <div className="absolute -top-6 right-1/2 translate-x-1/2 w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center font-display font-extrabold text-xl text-accent-foreground shadow-elegant">
+                  <div className="absolute -top-5 sm:-top-6 right-1/2 translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-gold flex items-center justify-center font-display font-extrabold text-lg sm:text-xl text-accent-foreground shadow-elegant">
                     {step.n}
                   </div>
-                  <Icon className="w-12 h-12 text-primary mx-auto mt-4 mb-4" />
-                  <h3 className="font-display text-xl font-bold mb-2">{step.t}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.d}</p>
+                  <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mt-3 sm:mt-4 mb-3 sm:mb-4" />
+                  <h3 className="font-display text-lg sm:text-xl font-bold mb-1.5 sm:mb-2">{step.t}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{step.d}</p>
                 </div>
               );
             })}
@@ -236,21 +236,21 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20">
+      <section className="py-14 sm:py-16 md:py-20">
         <div className="container">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-10 lg:p-16 text-center shadow-elegant animate-rise">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-primary p-7 sm:p-10 lg:p-16 text-center shadow-elegant animate-rise">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 80%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
             <div className="relative">
-              <h2 className="font-display text-3xl md:text-4xl font-extrabold text-primary-foreground">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary-foreground">
                 مستعدة لتحقيق أعلى الدرجات؟
               </h2>
-              <p className="text-primary-foreground/85 mt-4 max-w-xl mx-auto">
+              <p className="text-sm sm:text-base text-primary-foreground/85 mt-3 sm:mt-4 max-w-xl mx-auto">
                 انضمي اليوم إلى مئات الطالبات اللواتي يحضّرن لاختباراتهن بثقة عبر منصة تفوّق
               </p>
               <Link to="/auth?mode=signup">
-                <Button size="lg" className="mt-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-elegant h-14 px-10 text-base font-bold">
+                <Button size="lg" className="mt-6 sm:mt-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-elegant h-12 sm:h-14 px-7 sm:px-10 text-sm sm:text-base font-bold">
                   سجّلي مجاناً الآن
-                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 </Button>
               </Link>
             </div>
