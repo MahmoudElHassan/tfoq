@@ -69,14 +69,33 @@ const Auth = () => {
         if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
           throw new Error("already registered");
         }
+        if (parsed.role === "teacher") {
+          await supabase.auth.signOut();
+          toast.success("تم استلام طلب التسجيل", {
+            description: "حسابكِ كمعلمة بانتظار تفعيل مديرة النظام. سيتم إشعاركِ عند التفعيل.",
+          });
+          setParams({});
+          return;
+        }
         toast.success("تم إنشاء حسابك بنجاح!", { description: "جاري تحويلك للوحة التحكم..." });
       } else {
         const parsed = loginSchema.parse({ email: form.email, password: form.password });
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email: parsed.email,
           password: parsed.password,
         });
         if (error) throw error;
+        if (signInData.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("is_active")
+            .eq("id", signInData.user.id)
+            .maybeSingle();
+          if (profile && profile.is_active === false) {
+            await supabase.auth.signOut();
+            throw new Error("account_pending");
+          }
+        }
         toast.success("أهلاً بك مجدداً!");
       }
     } catch (err: any) {
