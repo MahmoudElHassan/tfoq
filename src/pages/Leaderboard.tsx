@@ -15,10 +15,12 @@ const Leaderboard = () => {
   const [warning, setWarning] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const load = async () => {
       setWarning(null);
-
       const { data, error } = await supabase.rpc("get_leaderboard", { _limit: 5 });
+      if (cancelled) return;
 
       if (error) {
         setWarning("تعذّر جلب لوحة الترتيب من قاعدة البيانات.");
@@ -32,28 +34,50 @@ const Leaderboard = () => {
         setWarning("لا توجد طالبات نشطات حالياً في النظام.");
       }
 
-      setRows(list);
-      setAnimatedPoints(new Array(list.length).fill(0));
-      setLoading(false);
-
-      list.forEach((row, idx) => {
-        const target = row.total_points;
-        const duration = 1400;
-        const startTime = performance.now();
-        const tick = (now: number) => {
-          const progress = Math.min((now - startTime) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          setAnimatedPoints((prev) => {
-            const next = [...prev];
-            next[idx] = Math.round(target * eased);
-            return next;
-          });
-          if (progress < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
+      setRows((prev) => {
+        const prevMap = new Map(prev.map((r) => [r.id, r.total_points]));
+        setAnimatedPoints(list.map((r) => prevMap.get(r.id) ?? 0));
+        list.forEach((row, idx) => {
+          const start = prevMap.get(row.id) ?? 0;
+          const target = row.total_points;
+          if (start === target) return;
+          const duration = 1200;
+          const startTime = performance.now();
+          const tick = (now: number) => {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setAnimatedPoints((prev2) => {
+              const next = [...prev2];
+              next[idx] = Math.round(start + (target - start) * eased);
+              return next;
+            });
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        });
+        return list;
       });
+      setLoading(false);
     };
+
     load();
+
+    const channel = supabase
+      .channel("leaderboard-profiles")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        () => load()
+      )
+      .subscribe();
+
+    const interval = setInterval(load, 30000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const top3 = rows.slice(0, 3);
