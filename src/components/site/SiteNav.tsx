@@ -21,7 +21,7 @@ export const SiteNav = () => {
         <div className="hidden md:flex items-center gap-1 text-sm">
           <Link to="/" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">الرئيسية</Link>
           <a href="/#features" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">المميزات</a>
-          <a href="/#about" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">من نحن</a>
+          <Link to="/about" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">من نحن</Link>
           <Link to="/leaderboard" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">الترتيب</Link>
           {user && <Link to="/dashboard" className="px-4 py-2 rounded-lg hover:bg-secondary text-foreground font-medium">لوحتي</Link>}
         </div>

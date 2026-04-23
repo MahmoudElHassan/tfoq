@@ -35,6 +35,7 @@ export const SiteFooter = () => {
           <ul className="space-y-2 text-sm text-sidebar-foreground/80">
             <li><a href="/" className="hover:text-sidebar-primary">الرئيسية</a></li>
             <li><a href="/#features" className="hover:text-sidebar-primary">المميزات</a></li>
+            <li><a href="/about" className="hover:text-sidebar-primary">من نحن</a></li>
             <li><a href="/leaderboard" className="hover:text-sidebar-primary">لوحة الترتيب</a></li>
             <li><a href="/auth" className="hover:text-sidebar-primary">تسجيل الدخول</a></li>
           </ul>
