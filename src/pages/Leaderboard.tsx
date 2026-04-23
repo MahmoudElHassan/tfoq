@@ -12,30 +12,65 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [animatedPoints, setAnimatedPoints] = useState<number[]>([]);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      // Fetch student IDs first
-      const { data: roleRows } = await supabase
+      setWarning(null);
+
+      // 1) Fetch student role IDs
+      const { data: roleRows, error: rolesErr } = await supabase
         .from("user_roles")
         .select("user_id")
         .eq("role", "student");
 
-      const studentIds = (roleRows ?? []).map((r: any) => r.user_id);
-      if (studentIds.length === 0) {
+      if (rolesErr) {
+        setWarning("تعذّر جلب أدوار المستخدمين من قاعدة البيانات.");
         setRows([]);
         setLoading(false);
         return;
       }
 
-      const { data } = await supabase
+      const studentIds = Array.from(new Set((roleRows ?? []).map((r: any) => r.user_id).filter(Boolean)));
+      if (studentIds.length === 0) {
+        setWarning("لا توجد طالبات مسجّلات في جدول الأدوار حتى الآن.");
+        setRows([]);
+        setLoading(false);
+        return;
+      }
+
+      // 2) Fetch all matching profiles to validate consistency
+      const { data: allMatching, error: profErr } = await supabase
         .from("profiles")
         .select("id, full_name, total_points, grade")
-        .in("id", studentIds)
-        .order("total_points", { ascending: false })
-        .limit(5);
+        .in("id", studentIds);
 
-      const list = data ?? [];
+      if (profErr) {
+        setWarning("تعذّر جلب ملفات الطالبات.");
+        setRows([]);
+        setLoading(false);
+        return;
+      }
+
+      const profileIds = new Set((allMatching ?? []).map((p) => p.id));
+      const missing = studentIds.filter((id) => !profileIds.has(id));
+
+      if ((allMatching ?? []).length === 0) {
+        setWarning("عدم تطابق: معرفات الطالبات في جدول الأدوار لا تطابق أي ملف في جدول الملفات الشخصية.");
+        setRows([]);
+        setLoading(false);
+        return;
+      }
+
+      if (missing.length > 0) {
+        setWarning(`تنبيه: ${missing.length} من معرفات الطالبات في جدول الأدوار لا تطابق ملفاً شخصياً. سيتم عرض المتطابقة فقط.`);
+      }
+
+      // 3) Sort & take top 5
+      const list = [...(allMatching ?? [])]
+        .sort((a, b) => (b.total_points ?? 0) - (a.total_points ?? 0))
+        .slice(0, 5);
+
       setRows(list);
       setAnimatedPoints(new Array(list.length).fill(0));
       setLoading(false);
@@ -104,12 +139,21 @@ const Leaderboard = () => {
             <p className="text-muted-foreground">جارٍ تحميل الترتيب...</p>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl p-8 text-center shadow-card">
             <Trophy className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground">لا توجد بيانات بعد</p>
+            <p className="font-bold mb-2">{warning ? "بيانات غير متطابقة" : "لا توجد بيانات بعد"}</p>
+            <p className="text-sm text-muted-foreground">
+              {warning ?? "لم يتم تسجيل أي طالبة في النظام بعد."}
+            </p>
           </div>
         ) : (
           <>
+            {warning && (
+              <div className="max-w-3xl mx-auto mb-6 bg-accent/10 border border-accent/30 rounded-2xl px-5 py-3 flex items-start gap-3 text-sm">
+                <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <p className="text-foreground">{warning}</p>
+              </div>
+            )}
             {/* Podium */}
             {top3.length > 0 && (
               <div className="flex items-end justify-center gap-3 lg:gap-8 mb-12 max-w-3xl mx-auto">
