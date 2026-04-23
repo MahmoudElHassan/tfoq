@@ -95,31 +95,31 @@ const Landing = () => {
         <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-primary/10 rounded-full blur-3xl animate-blob" />
         <div className="absolute -bottom-40 -right-32 w-[26rem] h-[26rem] bg-accent/15 rounded-full blur-3xl animate-blob [animation-delay:-6s]" />
 
-        <div className="container relative py-10 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="container relative py-8 sm:py-12 md:py-16 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 lg:gap-12 items-center">
           {/* TEXT — first on mobile, right side on desktop */}
           <div className="animate-rise order-1 lg:order-2 lg:col-span-6 text-center lg:text-right">
-            <div className="inline-flex items-center gap-2 bg-accent/15 text-accent-foreground px-4 py-2 rounded-full text-sm font-bold mb-5">
-              <Sparkles className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-accent/15 text-accent-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold mb-4 sm:mb-5">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {hero.badge}
             </div>
-            <h1 className="font-display text-[2rem] sm:text-4xl md:text-5xl lg:text-6xl font-black text-foreground leading-[1.15] text-balance">
+            <h1 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-black text-foreground leading-[1.15] text-balance">
               {hero.title_line1}
-              <span className="block mt-2 font-display" style={gradientStyle}>
+              <span className="block mt-1.5 sm:mt-2 font-display" style={gradientStyle}>
                 {hero.title_line2}
               </span>
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground mt-5 leading-relaxed max-w-xl mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 sm:mt-5 leading-relaxed max-w-xl mx-auto lg:mx-0">
               {hero.description}
             </p>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-7">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-2.5 sm:gap-3 mt-6 sm:mt-7">
               <Link to="/auth?mode=signup">
-                <Button size="lg" className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant gap-2 h-13 px-7 text-base">
+                <Button size="lg" className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant gap-2 h-11 sm:h-12 md:h-13 px-5 sm:px-6 md:px-7 text-sm sm:text-base">
                   {hero.cta_primary}
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </Link>
               <a href="#features">
-                <Button size="lg" variant="outline" className="h-13 px-7 text-base border-2">
+                <Button size="lg" variant="outline" className="h-11 sm:h-12 md:h-13 px-5 sm:px-6 md:px-7 text-sm sm:text-base border-2">
                   {hero.cta_secondary}
                 </Button>
               </a>
@@ -128,7 +128,7 @@ const Landing = () => {
 
           {/* IMAGE — visible on all sizes, balanced sizing */}
           <div className="animate-fade-in order-2 lg:order-1 lg:col-span-6">
-            <div className="relative mx-auto max-w-md sm:max-w-lg lg:max-w-none">
+            <div className="relative mx-auto max-w-sm sm:max-w-md md:max-w-xl lg:max-w-none">
               <div className="absolute -inset-3 sm:-inset-4 bg-gradient-primary opacity-20 blur-2xl rounded-3xl" />
               <img
                 src={heroImage}
@@ -136,26 +136,26 @@ const Landing = () => {
                 width={1280}
                 height={896}
                 loading="eager"
-                className="relative w-full aspect-[4/3] object-cover rounded-3xl shadow-elegant border-4 border-card animate-float-slow"
+                className="relative w-full aspect-[4/3] object-cover rounded-2xl sm:rounded-3xl shadow-elegant border-2 sm:border-4 border-card animate-float-slow"
               />
             </div>
           </div>
         </div>
 
         {/* Stats — static cards grid (replaces marquee) */}
-        <div className="container relative pb-14 lg:pb-20">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto animate-fade-in">
+        <div className="container relative pb-10 sm:pb-14 lg:pb-20">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5 max-w-5xl mx-auto animate-fade-in">
             {stats.map((s, idx) => (
               <div
                 key={idx}
                 style={{ animationDelay: `${idx * 80}ms` }}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-card hover:shadow-elegant hover:-translate-y-1 transition-all duration-300 animate-rise text-center"
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-border bg-card p-3.5 sm:p-5 md:p-6 shadow-card hover:shadow-elegant hover:-translate-y-1 transition-all duration-300 animate-rise text-center"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-primary opacity-70" />
-                <p className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold leading-none" style={gradientStyle}>
+                <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-none" style={gradientStyle}>
                   {s.v}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-2">
+                <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1.5 sm:mt-2">
                   {s.l}
                 </p>
               </div>
