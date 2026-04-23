@@ -152,10 +152,10 @@ const Landing = () => {
                 className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-border bg-card p-3.5 sm:p-5 md:p-6 shadow-card hover:shadow-elegant hover:-translate-y-1 transition-all duration-300 animate-rise text-center"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-primary opacity-70" />
-                <p className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-none" style={gradientStyle}>
+                <p className="t-stat" style={gradientStyle}>
                   {s.v}
                 </p>
-                <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-medium mt-1.5 sm:mt-2">
+                <p className="t-stat-label text-muted-foreground mt-1.5 sm:mt-2">
                   {s.l}
                 </p>
               </div>
