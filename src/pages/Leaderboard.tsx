@@ -39,8 +39,8 @@ const Leaderboard = () => {
           <div className="inline-flex w-16 h-16 rounded-2xl bg-gradient-gold items-center justify-center shadow-elegant mb-4">
             <Trophy className="w-9 h-9 text-accent-foreground" />
           </div>
-          <h1 className="font-display text-3xl lg:text-4xl font-extrabold">لوحة الترتيب</h1>
-          <p className="text-muted-foreground mt-2">أفضل الطالبات أداءً في منصة تفوّق</p>
+          <h1 className="t-h1">لوحة الترتيب</h1>
+          <p className="t-body text-muted-foreground mt-2">أفضل الطالبات أداءً في منصة تفوّق</p>
         </div>
 
         {loading ? (
