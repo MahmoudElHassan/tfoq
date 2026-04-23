@@ -139,12 +139,21 @@ const Leaderboard = () => {
             <p className="text-muted-foreground">جارٍ تحميل الترتيب...</p>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl p-8 text-center shadow-card">
             <Trophy className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground">لا توجد بيانات بعد</p>
+            <p className="font-bold mb-2">{warning ? "بيانات غير متطابقة" : "لا توجد بيانات بعد"}</p>
+            <p className="text-sm text-muted-foreground">
+              {warning ?? "لم يتم تسجيل أي طالبة في النظام بعد."}
+            </p>
           </div>
         ) : (
           <>
+            {warning && (
+              <div className="max-w-3xl mx-auto mb-6 bg-accent/10 border border-accent/30 rounded-2xl px-5 py-3 flex items-start gap-3 text-sm">
+                <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <p className="text-foreground">{warning}</p>
+              </div>
+            )}
             {/* Podium */}
             {top3.length > 0 && (
               <div className="flex items-end justify-center gap-3 lg:gap-8 mb-12 max-w-3xl mx-auto">
