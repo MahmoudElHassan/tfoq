@@ -104,8 +104,17 @@ const Quiz = () => {
 
   const wheelColors = ["#006C35", "#0d8a45", "#f4b942", "#006C35", "#0d8a45", "#f4b942", "#006C35", "#0d8a45"];
 
+  // Smooth-scroll the question card into view on small screens to keep balance
+  useEffect(() => {
+    if (currentQ && typeof window !== "undefined" && window.innerWidth < 1024) {
+      requestAnimationFrame(() => {
+        document.getElementById("quiz-question-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [currentQ]);
+
   return (
-    <div className="min-h-screen bg-gradient-soft">
+    <div className="min-h-screen bg-gradient-soft overflow-x-hidden">
       <SiteNav />
 
       <div className="container py-8 lg:py-12">
