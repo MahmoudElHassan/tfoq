@@ -70,14 +70,17 @@ const Wheel = ({ items, contentKind }: { items: Item[]; contentKind: "mcq" | "co
 
   return (
     <div className="space-y-4">
-      <div className="relative w-72 h-72 mx-auto">
+      <div className="relative w-72 h-72 mx-auto" style={{ isolation: "isolate", contain: "layout paint" }}>
         <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-0 h-0 border-l-8 border-r-8 border-t-[16px] border-l-transparent border-r-transparent border-t-primary" />
         <div
-          className="w-full h-full rounded-full border-4 border-primary shadow-elegant overflow-hidden"
+          className="w-full h-full rounded-full border-4 border-primary shadow-elegant overflow-hidden transform-gpu"
           style={{
-            transform: `rotate(${angle}deg)`,
+            transform: `translateZ(0) rotate(${angle}deg)`,
             transition: spinning ? "transform 3s cubic-bezier(.17,.67,.31,1)" : "none",
             background: `conic-gradient(${items.map((_, i) => `${colors[i % colors.length]} ${i * slice}deg ${(i + 1) * slice}deg`).join(",")})`,
+            willChange: "transform",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
           }}
         >
           {items.map((it, i) => (
