@@ -104,8 +104,17 @@ const Quiz = () => {
 
   const wheelColors = ["#006C35", "#0d8a45", "#f4b942", "#006C35", "#0d8a45", "#f4b942", "#006C35", "#0d8a45"];
 
+  // Smooth-scroll the question card into view on small screens to keep balance
+  useEffect(() => {
+    if (currentQ && typeof window !== "undefined" && window.innerWidth < 1024) {
+      requestAnimationFrame(() => {
+        document.getElementById("quiz-question-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [currentQ]);
+
   return (
-    <div className="min-h-screen bg-gradient-soft">
+    <div className="min-h-screen bg-gradient-soft overflow-x-hidden">
       <SiteNav />
 
       <div className="container py-8 lg:py-12">
@@ -138,10 +147,10 @@ const Quiz = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* الـ Wheel */}
-          <div className="bg-card rounded-3xl p-8 shadow-elegant border border-border flex flex-col items-center" style={{ contain: "layout paint" }}>
-            <div className="relative w-72 h-72 lg:w-80 lg:h-80" style={{ isolation: "isolate" }}>
+          <div className="bg-card rounded-3xl p-4 sm:p-6 lg:p-8 shadow-elegant border border-border flex flex-col items-center" style={{ contain: "layout paint" }}>
+            <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-80 lg:h-80 max-w-full" style={{ isolation: "isolate" }}>
               {/* مؤشر */}
               <div className="absolute -top-2 right-1/2 translate-x-1/2 z-10 w-0 h-0 border-l-[16px] border-r-[16px] border-t-[28px] border-l-transparent border-r-transparent border-t-destructive drop-shadow-lg" />
               {/* العجلة */}
@@ -171,7 +180,7 @@ const Quiz = () => {
             </div>
 
             <Button onClick={spin} disabled={spinning || !!currentQ || questions.length === 0}
-              className="mt-8 bg-gradient-primary text-primary-foreground hover:opacity-90 h-14 px-12 text-lg shadow-elegant gap-2">
+              className="mt-6 lg:mt-8 bg-gradient-primary text-primary-foreground hover:opacity-90 h-12 lg:h-14 px-8 lg:px-12 text-base lg:text-lg shadow-elegant gap-2">
               {spinning ? "جارٍ الاختيار..." : currentQ ? "أجيبي على السؤال" : "أديري العجلة"}
               {!spinning && !currentQ && <RotateCw className="w-5 h-5" />}
             </Button>
@@ -181,7 +190,7 @@ const Quiz = () => {
           </div>
 
           {/* السؤال */}
-          <div className="bg-card rounded-3xl p-8 shadow-elegant border border-border min-h-[420px]">
+          <div id="quiz-question-card" className="bg-card rounded-3xl p-5 sm:p-6 lg:p-8 shadow-elegant border border-border min-h-[280px] lg:min-h-[420px] scroll-mt-20">
             {!currentQ ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground py-20">
                 <Lightbulb className="w-16 h-16 mb-4 text-muted-foreground/40" />
