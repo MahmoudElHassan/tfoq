@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Save, Loader2, Layout, FileText, Upload, Image as ImageIcon, X } from "lucide-react";
+import { Save, Loader2, Layout, FileText, Upload, Image as ImageIcon, X, Info } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,7 @@ export const SiteContentEditor = () => {
   const hero = sections.hero ?? {};
   const footer = sections.footer ?? {};
   const features = sections.features_section ?? {};
+  const about = sections.about ?? {};
 
   return (
     <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
@@ -76,6 +77,7 @@ export const SiteContentEditor = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="hero" className="gap-2"><Layout className="w-4 h-4" />الهيرو</TabsTrigger>
           <TabsTrigger value="features" className="gap-2"><FileText className="w-4 h-4" />قسم المميزات</TabsTrigger>
+          <TabsTrigger value="about" className="gap-2"><Info className="w-4 h-4" />من نحن</TabsTrigger>
           <TabsTrigger value="footer" className="gap-2"><Layout className="w-4 h-4" />الفوتر</TabsTrigger>
         </TabsList>
 
@@ -198,6 +200,17 @@ export const SiteContentEditor = () => {
           <Field label="العنوان الرئيسي" value={features.title} onChange={(v) => update("features_section", { title: v })} />
           <TextField label="الوصف" value={features.subtitle} onChange={(v) => update("features_section", { subtitle: v })} />
           <SaveButton onClick={() => save("features_section")} loading={saving === "features_section"} />
+        </TabsContent>
+
+        <TabsContent value="about" className="space-y-4">
+          <Field label="العنوان الجانبي" value={about.eyebrow} onChange={(v) => update("about", { eyebrow: v })} />
+          <Field label="العنوان الرئيسي" value={about.title} onChange={(v) => update("about", { title: v })} />
+          <TextField label="نبذة تعريفية" value={about.body} onChange={(v) => update("about", { body: v })} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TextField label="رسالتنا" value={about.mission} onChange={(v) => update("about", { mission: v })} />
+            <TextField label="رؤيتنا" value={about.vision} onChange={(v) => update("about", { vision: v })} />
+          </div>
+          <SaveButton onClick={() => save("about")} loading={saving === "about"} />
         </TabsContent>
 
         <TabsContent value="footer" className="space-y-4">
