@@ -92,9 +92,9 @@ const StudentDashboard = () => {
           <div className="absolute -left-16 -bottom-16 w-48 h-48 bg-primary-foreground/10 rounded-full blur-2xl" />
           <div className="relative flex flex-wrap items-center justify-between gap-6">
             <div>
-              <p className="text-primary-foreground/80 flex items-center gap-2 text-sm"><Sparkles className="w-4 h-4" /> أهلاً بكِ مجدداً</p>
-              <h1 className="font-display text-2xl lg:text-4xl font-extrabold mt-2">{profile.full_name}</h1>
-              {profile.grade && <p className="text-primary-foreground/80 mt-1 text-sm">{profile.grade}</p>}
+              <p className="text-primary-foreground/80 flex items-center gap-2 t-small"><Sparkles className="w-4 h-4" /> أهلاً بكِ مجدداً</p>
+              <h1 className="t-h1 text-primary-foreground mt-2">{profile.full_name}</h1>
+              {profile.grade && <p className="text-primary-foreground/80 mt-1 t-small">{profile.grade}</p>}
             </div>
             <Button onClick={() => navigate("/quiz")}
               className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 lg:h-14 px-6 lg:px-8 text-sm lg:text-base font-bold shadow-elegant">
