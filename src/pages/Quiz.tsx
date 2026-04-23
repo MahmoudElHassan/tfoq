@@ -180,7 +180,7 @@ const Quiz = () => {
             </div>
 
             <Button onClick={spin} disabled={spinning || !!currentQ || questions.length === 0}
-              className="mt-8 bg-gradient-primary text-primary-foreground hover:opacity-90 h-14 px-12 text-lg shadow-elegant gap-2">
+              className="mt-6 lg:mt-8 bg-gradient-primary text-primary-foreground hover:opacity-90 h-12 lg:h-14 px-8 lg:px-12 text-base lg:text-lg shadow-elegant gap-2">
               {spinning ? "جارٍ الاختيار..." : currentQ ? "أجيبي على السؤال" : "أديري العجلة"}
               {!spinning && !currentQ && <RotateCw className="w-5 h-5" />}
             </Button>
@@ -190,7 +190,7 @@ const Quiz = () => {
           </div>
 
           {/* السؤال */}
-          <div className="bg-card rounded-3xl p-8 shadow-elegant border border-border min-h-[420px]">
+          <div id="quiz-question-card" className="bg-card rounded-3xl p-5 sm:p-6 lg:p-8 shadow-elegant border border-border min-h-[280px] lg:min-h-[420px] scroll-mt-20">
             {!currentQ ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground py-20">
                 <Lightbulb className="w-16 h-16 mb-4 text-muted-foreground/40" />
