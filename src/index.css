@@ -120,17 +120,17 @@
   /* ===== Unified Typography Scale =====
      Mobile (<640px) → Tablet (sm/md) → Desktop (lg+)
      Use these utilities instead of ad-hoc text-* classes for consistency. */
-  .t-display    { @apply font-display font-black leading-[1.15] text-[1.75rem] sm:text-4xl md:text-5xl lg:text-6xl; }
-  .t-h1         { @apply font-display font-extrabold leading-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl; }
-  .t-h2         { @apply font-display font-extrabold leading-tight text-xl sm:text-2xl md:text-3xl lg:text-4xl; }
-  .t-h3         { @apply font-display font-bold leading-snug text-lg sm:text-xl md:text-2xl; }
-  .t-h4         { @apply font-display font-bold leading-snug text-base sm:text-lg md:text-xl; }
-  .t-lead       { @apply text-sm sm:text-base md:text-lg leading-relaxed; }
-  .t-body       { @apply text-sm sm:text-base leading-relaxed; }
-  .t-small      { @apply text-xs sm:text-sm leading-normal; }
-  .t-eyebrow    { @apply text-[11px] sm:text-xs md:text-sm font-bold uppercase tracking-wider; }
-  .t-stat       { @apply font-display font-extrabold leading-none text-xl sm:text-2xl md:text-3xl lg:text-4xl; }
-  .t-stat-label { @apply text-[11px] sm:text-xs md:text-sm font-medium; }
+  .t-display    { @apply font-display font-black leading-[1.15] text-[2rem] sm:text-[2.625rem] md:text-[3.25rem] lg:text-[4rem]; }
+  .t-h1         { @apply font-display font-extrabold leading-tight text-[1.75rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3.25rem]; }
+  .t-h2         { @apply font-display font-extrabold leading-tight text-2xl sm:text-[1.75rem] md:text-[2rem] lg:text-[2.5rem]; }
+  .t-h3         { @apply font-display font-bold leading-snug text-xl sm:text-2xl md:text-[1.75rem]; }
+  .t-h4         { @apply font-display font-bold leading-snug text-lg sm:text-xl md:text-2xl; }
+  .t-lead       { @apply text-base sm:text-lg md:text-xl leading-relaxed; }
+  .t-body       { @apply text-base sm:text-lg leading-relaxed; }
+  .t-small      { @apply text-sm sm:text-base leading-normal; }
+  .t-eyebrow    { @apply text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider; }
+  .t-stat       { @apply font-display font-extrabold leading-none text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem]; }
+  .t-stat-label { @apply text-xs sm:text-sm md:text-base font-medium; }
 }
 
 @layer components {
