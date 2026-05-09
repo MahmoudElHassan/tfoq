@@ -133,11 +133,25 @@ const AdminLiveMonitor = () => {
       }
     };
 
-    load();
-    const t = setInterval(load, REFRESH_MS);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const tick = async () => {
+      await load();
+      if (cancelled) return;
+      // اختيار الفترة بناءً على عدد الطالبات النشطات (يتحدث داخل load عبر setStats)
+      // نقرأ من state الحالي عبر functional update لاحقاً، هنا نستعمل حيلة عبر setStats
+      setStats((s) => {
+        const active = s?.activeStudents ?? 0;
+        const next =
+          active === 0 ? REFRESH_IDLE_MS : active < 10 ? REFRESH_LOW_MS : REFRESH_ACTIVE_MS;
+        setRefreshMs(next);
+        timer = setTimeout(tick, next);
+        return s;
+      });
+    };
+    tick();
     return () => {
       cancelled = true;
-      clearInterval(t);
+      if (timer) clearTimeout(timer);
     };
   }, [isAdmin]);
 
