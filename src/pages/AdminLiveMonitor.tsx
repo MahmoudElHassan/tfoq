@@ -25,7 +25,10 @@ type Stats = {
   avgPointsPerAttempt: number;
 };
 
-const REFRESH_MS = 15000; // تحديث كل 15 ثانية (تقليل bandwidth بـ 66%)
+// تحديث تكيّفي: سريع وقت النشاط، بطيء وقت الهدوء (توفير bandwidth)
+const REFRESH_ACTIVE_MS = 15000;   // 15ث عند وجود طالبات نشطات
+const REFRESH_LOW_MS = 45000;      // 45ث عند نشاط خفيف (<10 طالبات)
+const REFRESH_IDLE_MS = 120000;    // دقيقتان عند الهدوء التام
 const RECENT_LIMIT = 10;
 
 const HEALTH_THRESHOLDS = {
