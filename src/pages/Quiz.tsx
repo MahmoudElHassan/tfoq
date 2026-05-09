@@ -42,6 +42,16 @@ const Quiz = () => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading, navigate]);
 
+  // مزامنة الإجابات المعلّقة عند فتح الصفحة (لو فُقد الاتصال سابقاً)
+  useEffect(() => {
+    if (!user) return;
+    void flushQueue().then((res) => {
+      if (res.flushed > 0) {
+        toast.success(`تمت مزامنة ${res.flushed} إجابة محفوظة محلياً`);
+      }
+    });
+  }, [user]);
+
   useEffect(() => {
     const load = async () => {
       const { data: subs } = await supabase.from("subjects").select("*").order("type");
