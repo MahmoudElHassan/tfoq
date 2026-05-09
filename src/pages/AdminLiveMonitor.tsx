@@ -251,12 +251,6 @@ const AdminLiveMonitor = () => {
             value={stats ? `${stats.correctRate}%` : "—"}
             tone="success"
           />
-          <StatCard
-            icon={<TrendingUp className="w-5 h-5" />}
-            label="متوسط النقاط"
-            value={stats?.avgPointsPerAttempt ?? "—"}
-            tone="warn"
-          />
         </div>
 
         {/* آخر الإجابات */}
