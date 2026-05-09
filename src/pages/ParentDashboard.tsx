@@ -35,13 +35,29 @@ const ParentDashboard = () => {
 
   const linkChild = async () => {
     if (!user || !email) return;
-    // Find student by email - use a simple approach via RPC-like pattern; profiles RLS allows authenticated to view leaderboard students
-    const { data: stu } = await supabase.from("profiles").select("id, email").eq("email", email).maybeSingle();
-    if (!stu) { toast.error("لم نجد حساب طالبة بهذا البريد"); return; }
+    const cleanEmail = email.trim().toLowerCase();
+    // RLS: profiles SELECT for non-students is hidden, so this returns only student accounts
+    const { data: stu } = await supabase
+      .from("profiles")
+      .select("id, email")
+      .ilike("email", cleanEmail)
+      .maybeSingle();
+    if (!stu) {
+      toast.error("لم نجد حساب طالبة بهذا البريد", {
+        description: "تأكدي من البريد ومن أن الطالبة قد سجّلت في المنصة كـ«طالبة».",
+      });
+      return;
+    }
     const { error } = await supabase.from("parent_student_links").insert({
       parent_id: user.id, student_id: stu.id,
     });
-    if (error) { toast.error("تعذّر الربط", { description: error.message }); return; }
+    if (error) {
+      const dup = error.code === "23505" || /duplicate|unique/i.test(error.message);
+      toast.error(dup ? "هذه الطالبة مرتبطة بحسابك مسبقاً" : "تعذّر الربط", {
+        description: dup ? undefined : error.message,
+      });
+      return;
+    }
     toast.success("تم ربط الطالبة بحسابك");
     setEmail(""); setOpen(false); load();
   };
