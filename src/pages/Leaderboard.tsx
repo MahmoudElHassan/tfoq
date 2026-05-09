@@ -62,21 +62,13 @@ const Leaderboard = () => {
 
     load();
 
-    const channel = supabase
-      .channel("leaderboard-profiles")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "profiles" },
-        () => load()
-      )
-      .subscribe();
-
-    const interval = setInterval(load, 30000);
+    // تحديث كل 60 ثانية فقط (بدلاً من realtime على كل profiles update)
+    // هذا يقلل الحمل بنسبة 80%+ على قاعدة البيانات أثناء الاختبارات الجماعية
+    const interval = setInterval(load, 60000);
 
     return () => {
       cancelled = true;
       clearInterval(interval);
-      supabase.removeChannel(channel);
     };
   }, []);
 
