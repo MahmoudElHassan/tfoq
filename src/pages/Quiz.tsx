@@ -54,9 +54,18 @@ const Quiz = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data: subs } = await supabase.from("subjects").select("*").order("type");
+      // تقليل bandwidth: نختار فقط الأعمدة المطلوبة + سقف 60 سؤال لكل جلسة
+      const { data: subs } = await supabase
+        .from("subjects")
+        .select("id,name,type")
+        .order("type");
       setSubjects(subs ?? []);
-      let q = supabase.from("questions").select("*");
+      let q = supabase
+        .from("questions")
+        .select(
+          "id,question_text,option_a,option_b,option_c,option_d,correct_option,explanation,points,difficulty"
+        )
+        .limit(60);
       if (subjectId) q = q.eq("subject_id", subjectId);
       const { data: qs } = await q;
       setQuestions(qs ?? []);
