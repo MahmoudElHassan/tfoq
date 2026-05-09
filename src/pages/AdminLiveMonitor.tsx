@@ -247,7 +247,11 @@ const AdminLiveMonitor = () => {
               المراقبة اللحظية
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              تحديث كل {refreshMs / 1000}ث · آخر تحديث:{" "}
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                مباشر
+              </span>{" "}
+              · تحديث الإحصاءات كل {refreshMs / 1000}ث · آخر تحديث:{" "}
               {lastUpdate ? lastUpdate.toLocaleTimeString("ar-EG") : "—"}
             </p>
           </div>
