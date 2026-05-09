@@ -140,9 +140,59 @@ const AdminLiveMonitor = () => {
       });
     };
     tick();
+
+    // اشتراك لحظي: أي إجابة جديدة تُحدِّث الواجهة فوراً دون انتظار polling
+    const channel = supabase
+      .channel("admin-live-attempts")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "quiz_attempts" },
+        async (payload) => {
+          const row: any = payload.new;
+          // اجلب اسم الطالبة
+          let student_name = "—";
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", row.student_id)
+            .maybeSingle();
+          if (prof?.full_name) student_name = prof.full_name;
+
+          setRecent((prev) =>
+            [
+              {
+                id: row.id,
+                student_id: row.student_id,
+                question_id: row.question_id ?? "",
+                is_correct: row.is_correct,
+                points_earned: row.points_earned,
+                attempted_at: row.attempted_at,
+                student_name,
+              },
+              ...prev,
+            ].slice(0, RECENT_LIMIT)
+          );
+          setLastUpdate(new Date());
+
+          // تحديث العدّادات تدريجياً (تقدير سريع، يُصحَّح في tick القادم)
+          setStats((s) =>
+            s
+              ? {
+                  ...s,
+                  attemptsLastMinute: s.attemptsLastMinute + 1,
+                  attemptsLast5Min: s.attemptsLast5Min + 1,
+                  attemptsLastHour: s.attemptsLastHour + 1,
+                }
+              : s
+          );
+        }
+      )
+      .subscribe();
+
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
     };
   }, [isAdmin]);
 
@@ -197,7 +247,11 @@ const AdminLiveMonitor = () => {
               المراقبة اللحظية
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              تحديث كل {refreshMs / 1000}ث · آخر تحديث:{" "}
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                مباشر
+              </span>{" "}
+              · تحديث الإحصاءات كل {refreshMs / 1000}ث · آخر تحديث:{" "}
               {lastUpdate ? lastUpdate.toLocaleTimeString("ar-EG") : "—"}
             </p>
           </div>
