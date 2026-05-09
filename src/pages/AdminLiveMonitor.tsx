@@ -220,7 +220,7 @@ const AdminLiveMonitor = () => {
         </div>
 
         {/* بطاقات الإحصاءات */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           <StatCard
             icon={<Zap className="w-5 h-5" />}
             label="إجابات/دقيقة"
