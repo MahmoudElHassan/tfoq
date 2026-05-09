@@ -301,8 +301,9 @@ const AdminLiveMonitor = () => {
         <div className="text-xs text-muted-foreground bg-card border border-border rounded-2xl p-4">
           <p className="font-bold mb-1">💡 ملاحظات:</p>
           <ul className="list-disc pr-5 space-y-1">
-            <li>الإحصاءات تعتمد على جدول الإجابات (quiz_attempts) وتُحدَّث كل 5 ثوان.</li>
-            <li>"طالبات نشطات" = طالبات أرسلن إجابة واحدة على الأقل في آخر 5 دقائق.</li>
+            <li>الإحصاءات تعتمد على عدّ الصفوف فقط (count) لتقليل استهلاك الـ bandwidth.</li>
+            <li>التحديث كل 15 ثانية بدلاً من 5 لتقليل الحمل بـ 66%.</li>
+            <li>"طالبات نشطات" = طالبات أرسلن إجابة في آخر 5 دقائق.</li>
             <li>عند تجاوز 500 إجابة/دقيقة، فكّري في ترقية حجم Lovable Cloud instance.</li>
           </ul>
         </div>
