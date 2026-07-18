@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Sparkles, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award, Target, Compass, Eye } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { supabase } from "@/integrations/supabase/client";
@@ -270,6 +271,7 @@ const Landing = () => {
       </section>
 
       <SiteFooter />
+      <FaqChatbot />
     </div>
   );
 };

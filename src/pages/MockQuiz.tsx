@@ -14,12 +14,12 @@ type TQ = {
   id: string;
   question_text: string;
   option_a: string; option_b: string; option_c: string; option_d: string;
-  correct_option: string;
   explanation: string | null;
   points: number;
   position: number;
 };
 type Template = { id: string; title: string; description: string | null; duration_minutes: number | null };
+type AnswerKey = Record<string, string>; // question_id → correct option
 
 const MockQuiz = () => {
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ const MockQuiz = () => {
 
   const [template, setTemplate] = useState<Template | null>(null);
   const [questions, setQuestions] = useState<TQ[]>([]);
+  const [answerKey, setAnswerKey] = useState<AnswerKey>({});
   const [loading, setLoading] = useState(true);
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -47,7 +48,10 @@ const MockQuiz = () => {
       setLoading(true);
       const [tplRes, qsRes] = await Promise.all([
         supabase.from("quiz_templates").select("id,title,description,duration_minutes").eq("id", templateId).maybeSingle(),
-        supabase.from("quiz_template_questions").select("*").eq("template_id", templateId).order("position"),
+        // نقرأ من quiz_template_questions_safe — لا يحتوي على correct_option
+        supabase.from("quiz_template_questions_safe")
+          .select("id,template_id,question_text,option_a,option_b,option_c,option_d,explanation,points,position")
+          .eq("template_id", templateId).order("position"),
       ]);
       setTemplate(tplRes.data as any);
       setQuestions((qsRes.data ?? []) as TQ[]);
@@ -56,6 +60,26 @@ const MockQuiz = () => {
     };
     load();
   }, [templateId, user]);
+
+  // عند إنهاء الاختبار نسحب مفاتيح الإجابة الصحيحة من الخادم عبر RPC
+  useEffect(() => {
+    if (!finished) return;
+    if (questions.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        questions.map(async (q) => {
+          const { data } = await supabase.rpc("check_template_answer", { p_question_id: q.id });
+          return [q.id, String(data ?? "").toLowerCase()] as const;
+        })
+      );
+      if (cancelled) return;
+      const map: AnswerKey = {};
+      for (const [id, opt] of entries) if (opt) map[id] = opt;
+      setAnswerKey(map);
+    })();
+    return () => { cancelled = true; };
+  }, [finished, questions]);
 
   // Timer
   useEffect(() => {
@@ -69,12 +93,12 @@ const MockQuiz = () => {
   const total = questions.length;
   const totalPoints = useMemo(() => questions.reduce((a, q) => a + q.points, 0), [questions]);
   const earnedPoints = useMemo(
-    () => questions.reduce((a, q) => a + (answers[q.id] === q.correct_option ? q.points : 0), 0),
-    [questions, answers]
+    () => questions.reduce((a, q) => a + (answerKey[q.id] && answers[q.id] === answerKey[q.id] ? q.points : 0), 0),
+    [questions, answers, answerKey]
   );
   const correctCount = useMemo(
-    () => questions.filter((q) => answers[q.id] === q.correct_option).length,
-    [questions, answers]
+    () => questions.filter((q) => answerKey[q.id] && answers[q.id] === answerKey[q.id]).length,
+    [questions, answers, answerKey]
   );
 
   const select = (qid: string, opt: string) => {
@@ -90,8 +114,7 @@ const MockQuiz = () => {
   const finish = async () => {
     setFinished(true);
     if (!user) return;
-    // record attempts to global quiz_attempts? template questions aren't in `questions` table.
-    // We just celebrate locally.
+    // نحتفل محلياً. التحقق من الإجابات يحدث بعد تحميل answerKey عبر RPC
     const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
     if (pct >= 50) confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     toast.success(`أنهيتِ الاختبار! نسبتك ${pct}%`);
@@ -207,25 +230,30 @@ const MockQuiz = () => {
           {/* Review */}
           <div className="bg-card rounded-3xl p-6 border border-border">
             <h3 className="font-display text-lg font-bold mb-4">مراجعة الإجابات</h3>
-            <div className="space-y-3">
-              {questions.map((q, i) => {
-                const sel = answers[q.id];
-                const ok = sel === q.correct_option;
-                return (
-                  <div key={q.id} className={`p-4 rounded-xl border-2 ${ok ? "border-success/40 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}>
-                    <div className="flex items-start gap-2">
-                      {ok ? <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
-                      <div className="flex-1">
-                        <p className="font-bold text-sm">س{i + 1}. {q.question_text}</p>
-                        <p className="text-xs text-muted-foreground mt-2">إجابتك: {sel ? `${sel.toUpperCase()} - ${(q as any)[`option_${sel}`]}` : "لم تجيبي"}</p>
-                        {!ok && <p className="text-xs text-success mt-1">الصحيحة: {q.correct_option.toUpperCase()} - {(q as any)[`option_${q.correct_option}`]}</p>}
-                        {q.explanation && <p className="text-xs mt-2 p-2 rounded bg-info/10 text-info"><Lightbulb className="w-3 h-3 inline ml-1" /> {q.explanation}</p>}
+            {Object.keys(answerKey).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">جارٍ تحميل الإجابات الصحيحة من الخادم...</p>
+            ) : (
+              <div className="space-y-3">
+                {questions.map((q, i) => {
+                  const sel = answers[q.id];
+                  const correct = answerKey[q.id];
+                  const ok = !!correct && sel === correct;
+                  return (
+                    <div key={q.id} className={`p-4 rounded-xl border-2 ${ok ? "border-success/40 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}>
+                      <div className="flex items-start gap-2">
+                        {ok ? <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
+                        <div className="flex-1">
+                          <p className="font-bold text-sm">س{i + 1}. {q.question_text}</p>
+                          <p className="text-xs text-muted-foreground mt-2">إجابتك: {sel ? `${sel.toUpperCase()} - ${(q as any)[`option_${sel}`]}` : "لم تجيبي"}</p>
+                          {correct && !ok && <p className="text-xs text-success mt-1">الصحيحة: {correct.toUpperCase()} - {(q as any)[`option_${correct}`]}</p>}
+                          {q.explanation && <p className="text-xs mt-2 p-2 rounded bg-info/10 text-info"><Lightbulb className="w-3 h-3 inline ml-1" /> {q.explanation}</p>}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -271,7 +299,8 @@ const MockQuiz = () => {
           <div className="space-y-3">
             {opts.map((o) => {
               const isSel = sel === o.k;
-              const isCorrect = isRevealed && o.k === q.correct_option;
+              const correct = answerKey[q.id];
+              const isCorrect = isRevealed && !!correct && o.k === correct;
               const isWrong = isRevealed && isSel && !isCorrect;
               return (
                 <button key={o.k} onClick={() => select(q.id, o.k)} disabled={isRevealed}
@@ -304,7 +333,15 @@ const MockQuiz = () => {
           <div className="mt-6 flex items-center gap-2">
             <Button variant="outline" onClick={prev} disabled={idx === 0}>السابق</Button>
             {!isRevealed && sel && (
-              <Button variant="secondary" onClick={() => reveal(q.id)} className="gap-2">
+              <Button variant="secondary" onClick={async () => {
+                // اسحب الإجابة الصحيحة من الخادم عبر RPC عند الطلب
+                if (!answerKey[q.id]) {
+                  const { data } = await supabase.rpc("check_template_answer", { p_question_id: q.id });
+                  const opt = String(data ?? "").toLowerCase();
+                  if (opt) setAnswerKey((m) => ({ ...m, [q.id]: opt }));
+                }
+                reveal(q.id);
+              }} className="gap-2">
                 <Lightbulb className="w-4 h-4" /> تحقق
               </Button>
             )}

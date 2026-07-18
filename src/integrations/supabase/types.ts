@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      faq_entries: {
+        Row: {
+          id: string
+          question: string
+          answer: string
+          sort_order: number
+          is_active: boolean
+          keywords: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          question: string
+          answer: string
+          sort_order?: number
+          is_active?: boolean
+          keywords?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          question?: string
+          answer?: string
+          sort_order?: number
+          is_active?: boolean
+          keywords?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       learning_game_items: {
         Row: {
           back_text: string | null
@@ -283,6 +316,7 @@ export type Database = {
       quiz_attempts: {
         Row: {
           attempted_at: string
+          client_id: string | null
           id: string
           is_correct: boolean
           points_earned: number
@@ -292,6 +326,7 @@ export type Database = {
         }
         Insert: {
           attempted_at?: string
+          client_id?: string | null
           id?: string
           is_correct: boolean
           points_earned?: number
@@ -301,6 +336,7 @@ export type Database = {
         }
         Update: {
           attempted_at?: string
+          client_id?: string | null
           id?: string
           is_correct?: boolean
           points_earned?: number
@@ -556,9 +592,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      questions_safe: {
+        Row: {
+          id: string
+          subject_id: string
+          question_text: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          explanation: string | null
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          points: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
+      quiz_template_questions_safe: {
+        Row: {
+          id: string
+          template_id: string
+          question_text: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          explanation: string | null
+          points: number
+          position: number
+          created_at: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      admin_list_questions: {
+        Args: { p_subject_id?: string }
+        Returns: {
+          correct_option: string
+          created_at: string
+          created_by: string | null
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          explanation: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          points: number
+          question_text: string
+          subject_id: string
+          updated_at: string
+        }[]
+      }
+      admin_list_template_questions: {
+        Args: { p_template_id?: string }
+        Returns: {
+          correct_option: string
+          created_at: string
+          explanation: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          points: number
+          position: number
+          question_text: string
+          template_id: string
+        }[]
+      }
       can_access_content: {
         Args: {
           _owner_id: string
@@ -567,6 +672,14 @@ export type Database = {
           _visibility: Database["public"]["Enums"]["content_visibility"]
         }
         Returns: boolean
+      }
+      check_answer: {
+        Args: { p_question_id: string }
+        Returns: string
+      }
+      check_template_answer: {
+        Args: { p_question_id: string }
+        Returns: string
       }
       get_leaderboard: {
         Args: { _limit?: number }
@@ -584,6 +697,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      submit_quiz_attempt: {
+        Args: { p_client_id: string; p_question_id: string; p_selected: string }
+        Returns: {
+          attempt_id: string
+          is_correct: boolean
+          points_earned: number
+        }[]
       }
       teacher_has_subject: {
         Args: { _subject_id: string; _teacher_id: string }

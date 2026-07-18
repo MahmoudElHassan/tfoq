@@ -4,7 +4,10 @@
 
 /* منصة تفوّق - هوية وزارة التعليم السعودية */
 @layer base {
-  :root {
+  /* Default preset variables — overridden at runtime by BrandThemeProvider
+     when the admin picks a different theme. data-theme is set on <html>. */
+  :root,
+  [data-theme="moe-green"] {
     --background: 150 30% 98%;
     --foreground: 158 45% 12%;
 
@@ -56,6 +59,211 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 152 60% 28%;
     --sidebar-ring: 45 95% 55%;
+  }
+
+  [data-theme="moe-navy"] {
+    --background: 215 35% 98%;
+    --foreground: 215 50% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 50% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 50% 12%;
+    --primary: 215 80% 28%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 215 60% 42%;
+    --secondary: 215 25% 94%;
+    --secondary-foreground: 215 80% 22%;
+    --muted: 215 20% 95%;
+    --muted-foreground: 215 15% 40%;
+    --accent: 32 95% 55%;
+    --accent-foreground: 215 50% 12%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --info: 210 90% 50%;
+    --warning: 35 95% 55%;
+    --border: 215 20% 88%;
+    --input: 215 20% 90%;
+    --ring: 215 80% 28%;
+    --radius: 0.875rem;
+    --gradient-primary: linear-gradient(135deg, hsl(215 80% 28%), hsl(215 60% 42%));
+    --gradient-soft: linear-gradient(135deg, hsl(215 30% 98%), hsl(215 25% 94%));
+    --gradient-gold: linear-gradient(135deg, hsl(32 95% 55%), hsl(28 90% 50%));
+    --shadow-soft: 0 4px 20px -8px hsl(215 80% 28% / 0.15);
+    --shadow-elegant: 0 10px 40px -12px hsl(215 80% 28% / 0.25);
+    --shadow-card: 0 2px 12px -4px hsl(215 30% 20% / 0.08);
+    --sidebar-background: 215 80% 28%;
+    --sidebar-foreground: 215 30% 95%;
+    --sidebar-primary: 32 95% 55%;
+    --sidebar-primary-foreground: 215 50% 12%;
+    --sidebar-accent: 215 60% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 50% 32%;
+    --sidebar-ring: 32 95% 55%;
+  }
+
+  [data-theme="moe-burgundy"] {
+    --background: 350 30% 98%;
+    --foreground: 350 50% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 350 50% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 350 50% 12%;
+    --primary: 350 70% 32%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 350 55% 45%;
+    --secondary: 350 25% 94%;
+    --secondary-foreground: 350 70% 25%;
+    --muted: 350 20% 95%;
+    --muted-foreground: 350 15% 40%;
+    --accent: 38 95% 55%;
+    --accent-foreground: 350 50% 12%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --info: 210 90% 50%;
+    --warning: 35 95% 55%;
+    --border: 350 20% 88%;
+    --input: 350 20% 90%;
+    --ring: 350 70% 32%;
+    --radius: 0.875rem;
+    --gradient-primary: linear-gradient(135deg, hsl(350 70% 32%), hsl(350 55% 45%));
+    --gradient-soft: linear-gradient(135deg, hsl(350 30% 98%), hsl(350 25% 94%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 95% 55%), hsl(32 90% 50%));
+    --shadow-soft: 0 4px 20px -8px hsl(350 70% 32% / 0.15);
+    --shadow-elegant: 0 10px 40px -12px hsl(350 70% 32% / 0.25);
+    --shadow-card: 0 2px 12px -4px hsl(350 30% 20% / 0.08);
+    --sidebar-background: 350 70% 32%;
+    --sidebar-foreground: 350 30% 95%;
+    --sidebar-primary: 38 95% 55%;
+    --sidebar-primary-foreground: 350 50% 12%;
+    --sidebar-accent: 350 55% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 350 50% 38%;
+    --sidebar-ring: 38 95% 55%;
+  }
+
+  [data-theme="moe-teal"] {
+    --background: 180 30% 98%;
+    --foreground: 185 45% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 185 45% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 185 45% 12%;
+    --primary: 178 65% 28%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 178 50% 40%;
+    --secondary: 178 25% 94%;
+    --secondary-foreground: 178 65% 22%;
+    --muted: 178 20% 95%;
+    --muted-foreground: 185 15% 40%;
+    --accent: 32 95% 55%;
+    --accent-foreground: 185 50% 12%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --info: 210 90% 50%;
+    --warning: 35 95% 55%;
+    --border: 178 20% 88%;
+    --input: 178 20% 90%;
+    --ring: 178 65% 28%;
+    --radius: 0.875rem;
+    --gradient-primary: linear-gradient(135deg, hsl(178 65% 28%), hsl(178 50% 40%));
+    --gradient-soft: linear-gradient(135deg, hsl(178 30% 98%), hsl(178 25% 94%));
+    --gradient-gold: linear-gradient(135deg, hsl(32 95% 55%), hsl(28 90% 50%));
+    --shadow-soft: 0 4px 20px -8px hsl(178 65% 28% / 0.15);
+    --shadow-elegant: 0 10px 40px -12px hsl(178 65% 28% / 0.25);
+    --shadow-card: 0 2px 12px -4px hsl(178 30% 20% / 0.08);
+    --sidebar-background: 178 65% 28%;
+    --sidebar-foreground: 178 30% 95%;
+    --sidebar-primary: 32 95% 55%;
+    --sidebar-primary-foreground: 185 50% 12%;
+    --sidebar-accent: 178 50% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 178 45% 32%;
+    --sidebar-ring: 32 95% 55%;
+  }
+
+  [data-theme="moe-plum"] {
+    --background: 285 30% 98%;
+    --foreground: 285 50% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 285 50% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 285 50% 12%;
+    --primary: 285 55% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 285 45% 50%;
+    --secondary: 285 25% 94%;
+    --secondary-foreground: 285 55% 28%;
+    --muted: 285 20% 95%;
+    --muted-foreground: 285 15% 40%;
+    --accent: 38 95% 55%;
+    --accent-foreground: 285 50% 12%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --info: 210 90% 50%;
+    --warning: 35 95% 55%;
+    --border: 285 20% 88%;
+    --input: 285 20% 90%;
+    --ring: 285 55% 35%;
+    --radius: 0.875rem;
+    --gradient-primary: linear-gradient(135deg, hsl(285 55% 35%), hsl(285 45% 50%));
+    --gradient-soft: linear-gradient(135deg, hsl(285 30% 98%), hsl(285 25% 94%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 95% 55%), hsl(32 90% 50%));
+    --shadow-soft: 0 4px 20px -8px hsl(285 55% 35% / 0.15);
+    --shadow-elegant: 0 10px 40px -12px hsl(285 55% 35% / 0.25);
+    --shadow-card: 0 2px 12px -4px hsl(285 30% 20% / 0.08);
+    --sidebar-background: 285 55% 35%;
+    --sidebar-foreground: 285 30% 95%;
+    --sidebar-primary: 38 95% 55%;
+    --sidebar-primary-foreground: 285 50% 12%;
+    --sidebar-accent: 285 45% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 285 40% 40%;
+    --sidebar-ring: 38 95% 55%;
+  }
+
+  [data-theme="moe-amber"] {
+    --background: 35 35% 98%;
+    --foreground: 30 50% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 50% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 50% 14%;
+    --primary: 30 80% 38%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 30 65% 50%;
+    --secondary: 35 35% 94%;
+    --secondary-foreground: 30 80% 30%;
+    --muted: 35 25% 95%;
+    --muted-foreground: 30 15% 40%;
+    --accent: 30 95% 55%;
+    --accent-foreground: 30 50% 12%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --info: 210 90% 50%;
+    --warning: 35 95% 55%;
+    --border: 35 25% 88%;
+    --input: 35 25% 90%;
+    --ring: 30 80% 38%;
+    --radius: 0.875rem;
+    --gradient-primary: linear-gradient(135deg, hsl(30 80% 38%), hsl(30 65% 50%));
+    --gradient-soft: linear-gradient(135deg, hsl(35 30% 98%), hsl(35 25% 94%));
+    --gradient-gold: linear-gradient(135deg, hsl(30 95% 55%), hsl(24 90% 50%));
+    --shadow-soft: 0 4px 20px -8px hsl(30 80% 38% / 0.15);
+    --shadow-elegant: 0 10px 40px -12px hsl(30 80% 38% / 0.25);
+    --shadow-card: 0 2px 12px -4px hsl(30 30% 20% / 0.08);
+    --sidebar-background: 30 80% 38%;
+    --sidebar-foreground: 35 30% 95%;
+    --sidebar-primary: 30 95% 55%;
+    --sidebar-primary-foreground: 30 50% 12%;
+    --sidebar-accent: 30 65% 25%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 30 55% 42%;
+    --sidebar-ring: 30 95% 55%;
   }
 
   .dark {

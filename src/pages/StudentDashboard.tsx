@@ -46,7 +46,7 @@ const StudentDashboard = () => {
         supabase.from("quiz_templates").select("*").order("created_at", { ascending: false }),
         supabase.from("learning_games").select("*").order("created_at", { ascending: false }),
         supabase.from("learning_videos").select("*").order("created_at", { ascending: false }),
-        supabase.from("quiz_template_questions").select("template_id"),
+        supabase.from("quiz_template_questions_safe").select("template_id"),
         supabase.from("learning_game_items").select("game_id"),
       ]);
 

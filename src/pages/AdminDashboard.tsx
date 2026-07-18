@@ -9,6 +9,7 @@ import { LearningManagement } from "@/components/learning/LearningManagement";
 import { Teachers } from "@/components/dashboard/Teachers";
 import { UsersManagement } from "@/components/dashboard/UsersManagement";
 import { SiteContentEditor } from "@/components/dashboard/SiteContentEditor";
+import { FaqManager } from "@/components/dashboard/FaqManager";
 import { AdminSettings } from "@/components/dashboard/AdminSettings";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
@@ -16,6 +17,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   stats: { title: "الإحصائيات التفصيلية", subtitle: "تحليلات معمّقة للأداء والتسجيلات" },
   users: { title: "إدارة المستخدمين", subtitle: "تفعيل، تعطيل، تغيير الأدوار وحذف الحسابات" },
   content: { title: "تحرير الصفحة الرئيسية", subtitle: "تعديل الهيرو، المميزات، الفوتر وكل العبارات" },
+  faq: { title: "الأسئلة الشائعة", subtitle: "إدارة محتوى المساعد الذكي على الصفحة الرئيسية" },
   questions: { title: "إدارة التعلّم", subtitle: "مراكز الاختبارات المحاكية والتعلم باللعب والفيديو" },
   teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
   students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
@@ -66,6 +68,7 @@ const AdminDashboard = () => {
           {section === "stats" && <Statistics />}
           {section === "users" && <UsersManagement />}
           {section === "content" && <SiteContentEditor />}
+          {section === "faq" && <FaqManager />}
           {section === "questions" && <LearningManagement />}
           {section === "teachers" && <Teachers />}
           {section === "students" && <UsersManagement filterRole="student" />}

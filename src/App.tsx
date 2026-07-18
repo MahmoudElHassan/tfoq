@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrandThemeProvider } from "@/components/BrandThemeProvider";
+import { DbHealthCheck } from "@/components/DbHealthCheck";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
@@ -21,6 +23,8 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <DbHealthCheck />
+    <BrandThemeProvider />
     <TooltipProvider>
       <Toaster />
       <Sonner />

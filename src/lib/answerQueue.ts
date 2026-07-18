@@ -12,11 +12,8 @@ const BASE_DELAY_MS = 800;
 
 export type PendingAnswer = {
   client_id: string; // مفتاح فريد لمنع التكرار
-  student_id: string;
   question_id: string;
   selected_option: string;
-  is_correct: boolean;
-  points_earned: number;
   attempted_at: string;
 };
 
@@ -49,14 +46,19 @@ const enqueue = (a: PendingAnswer) => {
   writeQueue(q);
 };
 
-const insertOnce = async (a: PendingAnswer): Promise<boolean> => {
-  // ملاحظة: client_id يُستخدم محلياً فقط لمنع تكرار الإرسال من نفس الجهاز
-  const { error } = await supabase.from("quiz_attempts").insert({
-    student_id: a.student_id,
-    question_id: a.question_id,
-    selected_option: a.selected_option,
-    is_correct: a.is_correct,
-    points_earned: a.points_earned,
+/**
+ * Send the attempt through the SECURITY DEFINER RPC. The server reads
+ * correct_option + points from the questions table — the client cannot
+ * inflate is_correct / points_earned.
+ *
+ * client_id UNIQUE makes the operation idempotent on retries and queue
+ * flushes — repeating the same call returns the original row.
+ */
+const submitOnce = async (a: PendingAnswer): Promise<boolean> => {
+  const { error } = await supabase.rpc("submit_quiz_attempt", {
+    p_question_id: a.question_id,
+    p_selected: a.selected_option,
+    p_client_id: a.client_id,
   });
   return !error;
 };
@@ -64,18 +66,19 @@ const insertOnce = async (a: PendingAnswer): Promise<boolean> => {
 /**
  * يحفظ إجابة الطالبة مع كل الاحتياطات.
  * - يضع نسخة في localStorage فوراً
- * - يحاول الإرسال مع backoff
+ * - يحاول الإرسال مع backoff عبر submit_quiz_attempt (آمن + متكرّر-آمن)
  * - عند الفشل يبقى في القائمة للمزامنة لاحقاً
  * - يُرجع true إذا حُفظت محلياً (دائماً) — الحفظ على الخادم قد يتأخر
  */
-export const saveAnswer = async (a: Omit<PendingAnswer, "client_id" | "attempted_at"> & { client_id?: string }) => {
+export const saveAnswer = async (a: {
+  question_id: string;
+  selected_option: string;
+  client_id?: string;
+}) => {
   const payload: PendingAnswer = {
     client_id: a.client_id ?? crypto.randomUUID(),
-    student_id: a.student_id,
     question_id: a.question_id,
     selected_option: a.selected_option,
-    is_correct: a.is_correct,
-    points_earned: a.points_earned,
     attempted_at: new Date().toISOString(),
   };
 
@@ -84,16 +87,16 @@ export const saveAnswer = async (a: Omit<PendingAnswer, "client_id" | "attempted
   // محاولة فورية مع backoff
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     if (!navigator.onLine) break;
-    const ok = await insertOnce(payload);
+    const ok = await submitOnce(payload);
     if (ok) {
       removeFromQueue(payload.client_id);
-      return { saved: true, queued: false };
+      return { saved: true, queued: false, client_id: payload.client_id };
     }
     await sleep(BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 200);
   }
 
   // الإجابة لا تزال في القائمة، ستُرسَل تلقائياً
-  return { saved: false, queued: true };
+  return { saved: false, queued: true, client_id: payload.client_id };
 };
 
 /**
@@ -108,7 +111,7 @@ export const flushQueue = async () => {
   let flushed = 0;
   for (const a of q) {
     if (!navigator.onLine) break;
-    const ok = await insertOnce(a);
+    const ok = await submitOnce(a);
     if (ok) {
       removeFromQueue(a.client_id);
       flushed++;

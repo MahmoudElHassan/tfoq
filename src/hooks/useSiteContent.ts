@@ -38,9 +38,11 @@ export const useSiteContent = <T = any>(id: string, fallback: T) => {
 
     fetchOnce();
 
-    // Subscribe to realtime updates so admin edits appear instantly on the live site.
+    // Unique channel name per hook instance. Sharing `site_content:${id}` across
+    // BrandThemeProvider + SiteNav + SiteFooter + Auth crashes with:
+    // "cannot add postgres_changes callbacks ... after subscribe"
     const channel = supabase
-      .channel(`site_content:${id}`)
+      .channel(`site_content:${id}:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "site_content", filter: `id=eq.${id}` },
