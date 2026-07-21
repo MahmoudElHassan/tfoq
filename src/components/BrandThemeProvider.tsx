@@ -1,28 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
-import { useSiteContent } from "@/hooks/useSiteContent";
+import { useBranding } from "@/hooks/useBranding";
+import { readPublishedBrandingCache } from "@/lib/brandingCache";
 import { getThemeById, hexToHslTriplet } from "@/lib/themes";
-import {
-  BRANDING_PREVIEW_EVENT,
-  readBrandingPreview,
-  type BrandingPreview,
-} from "@/lib/brandingPreview";
-
-type BrandingRow = {
-  logo_url: string;
-  brand_name: string;
-  theme_id: string;
-  primary: string | null;
-  accent: string | null;
-};
-
-const DEFAULT_BRANDING: BrandingRow = {
-  logo_url: "",
-  brand_name: "منصة تفوّق",
-  theme_id: "moe-green",
-  primary: null,
-  accent: null,
-};
 
 // Every CSS variable we touch when applying admin overrides. Listed so
 // `applyPrimary` / `applyAccent` / `clearAll` stay in sync — adding a new
@@ -51,8 +31,8 @@ const ACCENT_VARS = [
 /**
  * BrandThemeProvider
  *
- * One component lives at the top of the app, reads the `branding` row from
- * site_content (live, via realtime), and:
+ * One component lives at the top of the app, pulls the active brand from
+ * `useBranding()` (preview → DB → cache → default), and:
  *   - Sets data-theme on <html> so the matching CSS preset variables apply.
  *   - Applies optional primary/accent admin overrides on top of the preset,
  *     updating ALL related variables (gradient, glow, shadows, sidebar
@@ -60,51 +40,52 @@ const ACCENT_VARS = [
  *     chosen color.
  *   - Restores default favicon + document.title on logo/brand_name change.
  *
+ * The brand resolution + preview sync + cache mirror lives in useBranding so
+ * every chrome component (SiteNav, SiteFooter, Sidebar, Auth) sees the SAME
+ * brand name/logo without each spinning its own supabase subscription.
+ *
  * Tab-local preview: if the admin clicked تجربة, sessionStorage holds a
  * `BrandingPreview` row. We PREFER that for CSS / favicon / title, so the
  * admin sees the draft in this tab only. Other users / tabs always see
  * the published brand from useSiteContent.
- *
- * Plan-B hook: when we later add school_id, this hook resolves the school
- * from subdomain/slug and fetches the per-school row; the UI doesn't change.
  */
 export const BrandThemeProvider = () => {
   const { resolvedTheme } = useTheme();
-  const { content } = useSiteContent<BrandingRow>("branding", DEFAULT_BRANDING);
+  const { brand, loading, isPreview } = useBranding();
   // Track what we last applied so we can fully clear on a change
   // (e.g., admin un-sets primary — remove everything we set).
   const lastFaviconRef = useRef<string>("");
 
-  // Tab-local preview state. Starts from sessionStorage on mount so a
-  // draft survives an in-tab reload but never leaks to other tabs.
-  const [preview, setPreview] = useState<BrandingPreview | null>(() =>
-    readBrandingPreview(),
-  );
-
-  // Cross-component sync: the editor (or any other caller) dispatches
-  // `tfoq:branding-preview` after writing/clearing sessionStorage. Listen
-  // here so the provider updates without a full page reload.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent<BrandingPreview | null>).detail ?? null;
-      setPreview(detail);
-    };
-    window.addEventListener(BRANDING_PREVIEW_EVENT, handler);
-    return () => window.removeEventListener(BRANDING_PREVIEW_EVENT, handler);
-  }, []);
-
-  // The active brand = preview if present, else published.
-  const active: BrandingRow = preview ?? content;
-
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    const theme = getThemeById(active.theme_id);
+
+    // Resolve the brand to paint from, in priority order:
+    //   1. Tab-local preview (admin تجربة)
+    //   2. Live DB row (resolved + has a real theme_id)
+    //   3. localStorage cache (theme_id only — empty cache is treated as
+    //      "no brand" so we never resolve an empty id to moe-green)
+    //
+    // Cache may pre-apply theme_id / CSS vars under the visibility gate so
+    // the first paint is seamless, but we MUST NOT set data-brand-ready
+    // until the DB brand is settled (or a preview is active).
+    const cache = readPublishedBrandingCache();
+    const source: { theme_id: string; brand_name: string; logo_url: string; primary: string | null; accent: string | null } | null =
+      isPreview || brand.theme_id
+        ? brand
+        : cache && cache.theme_id
+          ? cache
+          : null;
+
+    // Never call getThemeById("") — that resolves to moe-green and re-paints
+    // the legacy identity while loading.
+    if (!source?.theme_id) return;
+
+    const theme = getThemeById(source.theme_id);
     root.setAttribute("data-theme", theme.id);
 
     // ---- Primary override ----
-    const primaryHsl = active.primary ? hexToHslTriplet(active.primary) : null;
+    const primaryHsl = source.primary ? hexToHslTriplet(source.primary) : null;
     if (primaryHsl) {
       applyPrimary(root, primaryHsl);
     } else {
@@ -112,7 +93,7 @@ export const BrandThemeProvider = () => {
     }
 
     // ---- Accent override ----
-    const accentHsl = active.accent ? hexToHslTriplet(active.accent) : null;
+    const accentHsl = source.accent ? hexToHslTriplet(source.accent) : null;
     if (accentHsl) {
       applyAccent(root, accentHsl);
     } else {
@@ -120,13 +101,18 @@ export const BrandThemeProvider = () => {
     }
 
     // ---- Brand name + title ----
-    const name = active.brand_name?.trim() || DEFAULT_BRANDING.brand_name;
-    if (document.title !== name) document.title = name;
-    setMeta("meta[property=\"og:title\"]", name);
-    setMeta("meta[name=\"twitter:title\"]", name);
+    // Empty brand_name → leave the document title alone. Never force the
+    // legacy "منصة تفوّق" string as a fallback (would leak the old identity
+    // even before the DB row resolves).
+    const name = source.brand_name?.trim() || "";
+    if (name && document.title !== name) document.title = name;
+    if (name) {
+      setMeta("meta[property=\"og:title\"]", name);
+      setMeta("meta[name=\"twitter:title\"]", name);
+    }
 
     // ---- Favicon ----
-    const desired = active.logo_url || "";
+    const desired = source.logo_url || "";
     if (desired !== lastFaviconRef.current) {
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
       if (!link) {
@@ -142,12 +128,26 @@ export const BrandThemeProvider = () => {
       }
       lastFaviconRef.current = desired;
     }
+
+    // ---- Visibility gate ----
+    // Reveal ONLY after the branding DB has settled (or a preview is
+    // active). Never flip ready based on cache alone — that's what caused
+    // the old→new double flash.
+    if (
+      (isPreview || !loading) &&
+      source.theme_id &&
+      root.getAttribute("data-brand-ready") !== "1"
+    ) {
+      root.setAttribute("data-brand-ready", "1");
+    }
   }, [
-    active.theme_id,
-    active.brand_name,
-    active.primary,
-    active.accent,
-    active.logo_url,
+    brand.theme_id,
+    brand.brand_name,
+    brand.primary,
+    brand.accent,
+    brand.logo_url,
+    loading,
+    isPreview,
     resolvedTheme,
   ]);
 

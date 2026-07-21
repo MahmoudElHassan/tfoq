@@ -2,26 +2,10 @@ import { LayoutDashboard, BarChart3, BookOpenCheck, Users, GraduationCap, UserCo
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useSiteContent } from "@/hooks/useSiteContent";
+import { useBranding } from "@/hooks/useBranding";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { Menu } from "lucide-react";
-
-type Branding = {
-  logo_url: string;
-  brand_name: string;
-  theme_id: string;
-  primary: string | null;
-  accent: string | null;
-};
-
-const DEFAULT_BRANDING: Branding = {
-  logo_url: "",
-  brand_name: "منصة تفوّق",
-  theme_id: "moe-green",
-  primary: null,
-  accent: null,
-};
 
 interface SidebarProps {
   active: string;
@@ -44,7 +28,7 @@ const items = [
 
 const SidebarInner = ({ active, onChange }: SidebarProps) => {
   const { user, signOut } = useAuth();
-  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
+  const { brand } = useBranding();
   const initial = (user?.email?.[0] ?? "م").toUpperCase();
   return (
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
