@@ -1,29 +1,13 @@
 import { Link } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useSiteContent } from "@/hooks/useSiteContent";
+import { useBranding } from "@/hooks/useBranding";
 import { Button } from "@/components/ui/button";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 
-type Branding = {
-  logo_url: string;
-  brand_name: string;
-  theme_id: string;
-  primary: string | null;
-  accent: string | null;
-};
-
-const DEFAULT_BRANDING: Branding = {
-  logo_url: "",
-  brand_name: "منصة تفوّق",
-  theme_id: "moe-green",
-  primary: null,
-  accent: null,
-};
-
 export const SiteNav = () => {
   const { user, signOut } = useAuth();
-  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
+  const { brand } = useBranding();
   return (
     <nav className="sticky top-0 z-40 bg-card/85 backdrop-blur-md border-b border-border">
       <div className="container flex items-center justify-between h-16">

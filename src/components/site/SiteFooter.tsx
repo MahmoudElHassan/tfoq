@@ -1,5 +1,6 @@
 import { GraduationCap, Mail, Phone, MapPin } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useBranding } from "@/hooks/useBranding";
 
 type FooterRow = {
   brand_subtitle: string;
@@ -10,14 +11,6 @@ type FooterRow = {
   copyright_template: string;
 };
 
-type Branding = {
-  logo_url: string;
-  brand_name: string;
-  theme_id: string;
-  primary: string | null;
-  accent: string | null;
-};
-
 const DEFAULT_FOOTER: FooterRow = {
   brand_subtitle: "ثانوية الطالبات",
   about: "منصة تعليمية تفاعلية مخصصة لطالبات المرحلة الثانوية لتعزيز مهاراتهن في اختبارات التحصيلي والقدرات عبر أدوات حديثة وممتعة.",
@@ -25,14 +18,6 @@ const DEFAULT_FOOTER: FooterRow = {
   phone: "+966 11 000 0000",
   address: "المملكة العربية السعودية",
   copyright_template: "{brand} - جميع الحقوق محفوظة | بدعم من وزارة التعليم",
-};
-
-const DEFAULT_BRANDING: Branding = {
-  logo_url: "",
-  brand_name: "منصة تفوّق",
-  theme_id: "moe-green",
-  primary: null,
-  accent: null,
 };
 
 /**
@@ -47,8 +32,10 @@ const DEFAULT_BRANDING: Branding = {
  */
 export const SiteFooter = () => {
   const { content: f } = useSiteContent<FooterRow>("footer", DEFAULT_FOOTER);
-  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
-  const brandName = brand.brand_name?.trim() || DEFAULT_BRANDING.brand_name;
+  const { brand } = useBranding();
+  // No hardcoded "منصة تفوّق" fallback — while the DB brand row is loading
+  // the brand name simply renders empty instead of leaking the old identity.
+  const brandName = brand.brand_name?.trim() || "";
   const copyright = (f.copyright_template || DEFAULT_FOOTER.copyright_template)
     .replace(/\{brand\}/g, brandName);
   return (

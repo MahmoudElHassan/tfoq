@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrandThemeProvider } from "@/components/BrandThemeProvider";
+import { BrandingProvider } from "@/hooks/useBranding";
 import { DbHealthCheck } from "@/components/DbHealthCheck";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
@@ -30,29 +31,31 @@ const App = () => (
     storageKey="tfoq-color-mode"
   >
     <QueryClientProvider client={queryClient}>
-      <DbHealthCheck />
-      <BrandThemeProvider />
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/live-monitor" element={<AdminLiveMonitor />} />
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/parent" element={<ParentDashboard />} />
-            <Route path="/teacher" element={<TeacherDashboard />} />
-            <Route path="/quiz" element={<Quiz />} />
-            <Route path="/mock-quiz/:templateId" element={<MockQuiz />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <BrandingProvider>
+        <DbHealthCheck />
+        <BrandThemeProvider />
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/live-monitor" element={<AdminLiveMonitor />} />
+              <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/parent" element={<ParentDashboard />} />
+              <Route path="/teacher" element={<TeacherDashboard />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/mock-quiz/:templateId" element={<MockQuiz />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </BrandingProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );

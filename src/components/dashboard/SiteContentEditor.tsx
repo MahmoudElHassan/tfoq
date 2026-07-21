@@ -25,16 +25,16 @@ import {
   readBrandingPreview,
   type BrandingPreview,
 } from "@/lib/brandingPreview";
+import { writePublishedBrandingCache } from "@/lib/brandingCache";
+import { SEED_BRANDING } from "@/lib/brandingDefaults";
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 
-const DEFAULT_BRANDING: BrandingPreview = {
-  logo_url: "",
-  brand_name: "منصة تفوّق",
-  theme_id: "moe-green",
-  primary: null,
-  accent: null,
-};
+// Code default for the editor draft state. This is the shared, non-paintable
+// seed: empty fields so a fresh install shows blank draft rows instead of
+// the legacy moe-green identity. BrandingPanel Save writes the row into DB
+// and the live site starts using it.
+const DEFAULT_BRANDING: BrandingPreview = SEED_BRANDING;
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 const sanitizeHex = (v: string) => {
@@ -74,24 +74,10 @@ export const SiteContentEditor = () => {
       (data ?? []).forEach((s: Section) => { map[s.id] = s.content; });
       setSections(map);
 
-      // Defensive: if the branding row is missing on the target DB, upsert
-      // defaults once so the editor always has a row to update.
-      if (!("branding" in map)) {
-        const { data: upData, error: upErr } = await supabase
-          .from("site_content")
-          .upsert(
-            { id: "branding", content: DEFAULT_BRANDING, updated_at: new Date().toISOString() },
-            { onConflict: "id" },
-          )
-          .select("id,content")
-          .maybeSingle();
-        if (upErr) {
-          toast.error("لم نتمكن من إنشاء صف الهوية", { description: upErr.message });
-        } else if (upData?.content) {
-          map.branding = upData.content;
-          setSections((s) => ({ ...s, branding: upData.content }));
-        }
-      }
+      // NOTE: we deliberately do NOT upsert a `branding` row on first load.
+      // Auto-inserting the legacy moe-green / منصة تفوّق default would
+      // re-introduce the green identity flash. The admin must Save the
+      // branding panel at least once to materialize the DB row.
       setLoading(false);
     })();
   }, []);
@@ -129,7 +115,7 @@ export const SiteContentEditor = () => {
       return;
     }
     if (!upData) {
-      toast.error("لم يُحفظ (قد لا تملكين صلاحية التعديل)");
+      toast.error("لم يُحفظ (قد لا تملك صلاحية التعديل)");
       return;
     }
     toast.success("تم حفظ التغييرات بنجاح");
@@ -165,7 +151,7 @@ export const SiteContentEditor = () => {
       .select("id")
       .maybeSingle();
     if (svErr || !upData) {
-      toast.error(svErr?.message ?? "لم يُحفظ الرابط — اضغطي حفظ التغييرات يدوياً");
+      toast.error(svErr?.message ?? "لم يُحفظ الرابط — اضغط حفظ التغييرات يدوياً");
     } else {
       toast.success("تم رفع الصورة وتثبيتها");
     }
@@ -187,20 +173,20 @@ export const SiteContentEditor = () => {
   return (
     <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
       <Tabs defaultValue="branding" className="w-full">
-        <TabsList className="mb-6 flex-wrap">
-          <TabsTrigger value="branding" className="gap-2">
+        <TabsList className="mb-6 flex h-auto w-full flex-col items-stretch gap-1 overflow-x-auto sm:flex-row sm:flex-wrap sm:items-center">
+          <TabsTrigger value="branding" className="gap-2 w-full justify-start sm:w-auto shrink-0">
             <Palette className="w-4 h-4" />الهوية والثيم
           </TabsTrigger>
-          <TabsTrigger value="hero" className="gap-2">
+          <TabsTrigger value="hero" className="gap-2 w-full justify-start sm:w-auto shrink-0">
             <Layout className="w-4 h-4" />الهيرو
           </TabsTrigger>
-          <TabsTrigger value="features" className="gap-2">
+          <TabsTrigger value="features" className="gap-2 w-full justify-start sm:w-auto shrink-0">
             <FileText className="w-4 h-4" />قسم المميزات
           </TabsTrigger>
-          <TabsTrigger value="about" className="gap-2">
+          <TabsTrigger value="about" className="gap-2 w-full justify-start sm:w-auto shrink-0">
             <Info className="w-4 h-4" />من نحن
           </TabsTrigger>
-          <TabsTrigger value="footer" className="gap-2">
+          <TabsTrigger value="footer" className="gap-2 w-full justify-start sm:w-auto shrink-0">
             <Layout className="w-4 h-4" />الفوتر
           </TabsTrigger>
         </TabsList>
@@ -248,7 +234,7 @@ export const SiteContentEditor = () => {
             <Input
               value={hero.image_url ?? ""}
               onChange={(e) => update("hero", { image_url: e.target.value })}
-              placeholder="أو ألصقي رابط صورة مباشرًا"
+              placeholder="أو الصق رابط صورة مباشرًا"
               dir="ltr"
             />
           </div>
@@ -492,7 +478,7 @@ const BrandingPanel = ({
     // Only update the DRAFT logo_url; do NOT upsert site_content.
     apply({ logo_url: pub.publicUrl });
     setLogoUploading(false);
-    toast.success("تم رفع الشعار — اضغطي «تجربة» للمعاينة أو «حفظ التغييرات» للنشر.");
+    toast.success("تم رفع الشعار — اضغط «تجربة» للمعاينة أو «حفظ التغييرات» للنشر.");
   };
 
   // ---- تجربة: tab-local preview only ----
@@ -501,7 +487,7 @@ const BrandingPanel = ({
     writeBrandingPreview(sanitized);
     setPreviewActive(true);
     toast.info("المعاينة محلية لهذا التبويب فقط — لم تُحفظ بعد.", {
-      description: "افتحي المنصة في تبويب آخر لترين أن المستخدمين لا يزالون يرون الهوية الحالية.",
+      description: "افتح المنصة في تبويب آخر لترى أن المستخدمين لا يزالون يرون الهوية الحالية.",
     });
   };
 
@@ -529,14 +515,17 @@ const BrandingPanel = ({
       .maybeSingle();
     setSaving(false);
     if (error || !upData) {
-      toast.error(error?.message ?? "تعذّر الحفظ (قد لا تملكين صلاحية التعديل)");
+      toast.error(error?.message ?? "تعذّر الحفظ (قد لا تملك صلاحية التعديل)");
       return;
     }
-    // On success: clear tab preview so everyone (incl. this tab) sees the
-    // newly-published brand via realtime useSiteContent.
+    // Mirror the just-published brand to localStorage so the next page load
+    // paints the correct theme/logo/title BEFORE any component mounts,
+    // avoiding the default-then-published flash.
+    const next = sanitizeBranding(upData.content ?? sanitized);
+    writePublishedBrandingCache(next); // notify:true (default) → chrome updates immediately
+    // On success: clear tab preview so this tab shows the newly-published brand.
     clearBrandingPreview();
     setPreviewActive(false);
-    const next = sanitizeBranding(upData.content ?? sanitized);
     dirtyRef.current = false;
     setDraft(next);
     // Sync parent published baseline so isDirty resets (was stuck true before).
@@ -559,13 +548,14 @@ const BrandingPanel = ({
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
-        <span>
-          التعديلات محفوظة في هذه الصفحة فقط. اضغطي <strong className="text-foreground">«تجربة»</strong> للمعاينة،
-          أو <strong className="text-foreground">«حفظ التغييرات»</strong> للنشر على المنصة كاملة.
-        </span>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3 text-xs text-muted-foreground">
+        <p className="leading-relaxed text-pretty max-w-prose">
+          التعديلات محفوظة في هذه الصفحة فقط. اضغط{" "}
+          <strong className="text-foreground">«تجربة»</strong> للمعاينة، أو{" "}
+          <strong className="text-foreground">«حفظ التغييرات»</strong> للنشر على المنصة كاملة.
+        </p>
         {previewActive && (
-          <span className="inline-flex items-center gap-1 font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
+          <span className="inline-flex w-fit shrink-0 items-center gap-1 font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
             <Eye className="w-3 h-3" /> وضع التجربة مفعّل لهذا التبويب
           </span>
         )}
@@ -632,7 +622,7 @@ const BrandingPanel = ({
         <Input
           value={draft.logo_url ?? ""}
           onChange={(e) => apply({ logo_url: e.target.value })}
-          placeholder="أو ألصقي رابط شعار مباشرًا"
+          placeholder="أو الصق رابط شعار مباشرًا"
           dir="ltr"
         />
       </div>
@@ -701,7 +691,7 @@ const BrandingPanel = ({
               <p className="font-display font-extrabold text-white leading-tight">
                 {draft.brand_name || "اسم العلامة"}
               </p>
-              <p className="text-xs text-white/80 mt-0.5">ثانوية الطالبات</p>
+              <p className="text-xs text-white/80 mt-0.5">ثانوية الطلاب</p>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -710,19 +700,19 @@ const BrandingPanel = ({
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          هذه معاينة محلية فقط. اضغطي <strong>«تجربة»</strong> لتُطبَّق الألوان والشعار على هذا التبويب،
+          هذه معاينة محلية فقط. اضغط <strong>«تجربة»</strong> لتُطبَّق الألوان والشعار على هذا التبويب،
           أو <strong>«حفظ التغييرات»</strong> لتُطبَّق على كل المستخدمين.
         </p>
       </div>
 
       {/* Footer actions */}
-      <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 pt-2 border-t border-border">
         <Button
           type="button"
           variant="outline"
           onClick={tryPreview}
           disabled={!isDirty}
-          className="gap-2"
+          className="gap-2 w-full sm:w-auto"
         >
           <Eye className="w-4 h-4" />
           تجربة
@@ -731,7 +721,7 @@ const BrandingPanel = ({
           type="button"
           onClick={() => setConfirmOpen(true)}
           disabled={!isDirty || saving}
-          className="bg-gradient-primary text-primary-foreground gap-2"
+          className="bg-gradient-primary text-primary-foreground gap-2 w-full sm:w-auto"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           حفظ التغييرات
@@ -741,7 +731,7 @@ const BrandingPanel = ({
             type="button"
             variant="ghost"
             onClick={cancelPreview}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
           >
             <EyeOff className="w-4 h-4" />
             إلغاء التجربة
@@ -752,7 +742,7 @@ const BrandingPanel = ({
             type="button"
             variant="ghost"
             onClick={resetDraft}
-            className="gap-2 mr-auto"
+            className="gap-2 mr-auto w-full sm:w-auto"
           >
             <Undo2 className="w-4 h-4" />
             استرجاع القيم المنشورة
@@ -769,7 +759,7 @@ const BrandingPanel = ({
               سيتم تطبيق هذه الهوية (الاسم، الشعار، السمة، الألوان) على <strong>كل المستخدمين</strong> في كل الصفحات،
               وستظهر فوراً للزائرات والطالبات والمعلمات وأولياء الأمور عبر التحديث اللحظي.
               <br />
-              هل تريدين المتابعة؟
+              هل تريد المتابعة؟
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
@@ -781,7 +771,7 @@ const BrandingPanel = ({
               }}
               className="bg-gradient-primary text-primary-foreground hover:opacity-90"
             >
-              نعم، انشري التغييرات
+              نعم، انشر التغييرات
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

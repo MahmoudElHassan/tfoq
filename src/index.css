@@ -4,9 +4,18 @@
 
 /* منصة تفوّق - هوية وزارة التعليم السعودية */
 @layer base {
+  /* Bare :root intentionally carries NO brand colors. The published brand
+     (or the admin-selected preset) is the only source of identity colors,
+     set via [data-theme="…"] on <html>. This prevents first paint from
+     flashing the project-default Ministry green before the real brand is
+     applied by the boot script or BrandThemeProvider. */
+  :root {
+    color-scheme: light;
+    --radius: 0.875rem;
+  }
+
   /* Default preset variables — overridden at runtime by BrandThemeProvider
      when the admin picks a different theme. data-theme is set on <html>. */
-  :root,
   [data-theme="moe-green"] {
     color-scheme: light;
     --background: 150 30% 98%;

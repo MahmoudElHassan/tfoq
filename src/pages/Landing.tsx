@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Sparkles, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award, Target, Compass, Eye } from "lucide-react";
+import { ArrowLeft, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award, Target, Compass, Eye } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-students.jpg";
 
@@ -16,6 +17,13 @@ const features = [
   { icon: Users, title: "حساب ولي الأمر", desc: "تابع/ي أداء الطالبة، نقاطها وترتيبها بشكل مستمر ومفصّل", tone: "success" },
 ];
 
+// Hero fallbacks are intentionally NEUTRAL slate — they are shown only while
+// the DB `hero` row is loading. Using moe-green here would re-paint the old
+// Ministry identity during the gate window. The active brand colors come
+// from CSS variables on <html>, not from these defaults.
+const HERO_NEUTRAL_FROM = "#64748B"; // slate-500
+const HERO_NEUTRAL_TO = "#94A3B8";   // slate-400
+
 const heroDefaults = {
   badge: "منصة تعليمية معتمدة لطالبات الثانوية",
   title_line1: "تفوّقي في",
@@ -24,8 +32,8 @@ const heroDefaults = {
   cta_primary: "ابدئي رحلتك الآن",
   cta_secondary: "استكشفي المميزات",
   image_url: "",
-  gradient_from: "#006B3A",
-  gradient_to: "#1F8B5C",
+  gradient_from: HERO_NEUTRAL_FROM,
+  gradient_to: HERO_NEUTRAL_TO,
   gradient_angle: 135,
   stats: [
     { v: "1,200+", l: "طالبة مسجلة" },
@@ -53,6 +61,7 @@ const Landing = () => {
   const { content: hero } = useSiteContent("hero", heroDefaults);
   const { content: feat } = useSiteContent("features_section", featuresDefaults);
   const { content: about } = useSiteContent("about", aboutDefaults);
+  const { loading: brandLoading } = useBranding();
   const [liveStats, setLiveStats] = useState<{ v: string; l: string }[] | null>(null);
 
   // Fetch real counts as a guaranteed fallback so stats are NEVER empty
@@ -76,6 +85,11 @@ const Landing = () => {
     })();
   }, []);
 
+  // Body stays hidden behind the visibility gate until BrandThemeProvider
+  // reveals it; returning null here too avoids a stray Landing paint if the
+  // gate ever races with this render. All hooks above this line.
+  if (brandLoading) return null;
+
   // Stats source priority: admin-edited stats → live DB stats → defaults
   const stats: { v: string; l: string }[] =
     Array.isArray(hero.stats) && hero.stats.length > 0
@@ -86,7 +100,7 @@ const Landing = () => {
 
   // Safe gradient style — applied inline so admin colors render reliably on mobile WebKit
   const gradientStyle: React.CSSProperties = {
-    backgroundImage: `linear-gradient(${hero.gradient_angle ?? 135}deg, ${hero.gradient_from ?? "#006B3A"}, ${hero.gradient_to ?? "#1F8B5C"})`,
+    backgroundImage: `linear-gradient(${hero.gradient_angle ?? 135}deg, ${hero.gradient_from ?? HERO_NEUTRAL_FROM}, ${hero.gradient_to ?? HERO_NEUTRAL_TO})`,
     WebkitBackgroundClip: "text",
     backgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -109,7 +123,6 @@ const Landing = () => {
           {/* TEXT — first on mobile, right side on desktop */}
           <div className="animate-rise order-1 lg:order-2 lg:col-span-6 text-center lg:text-right">
             <div className="inline-flex items-center gap-2 bg-accent/15 text-accent-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold mb-4 sm:mb-5">
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {hero.badge}
             </div>
             <h1 className="t-display text-foreground text-balance">

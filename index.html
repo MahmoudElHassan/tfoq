@@ -7,8 +7,8 @@
     <meta name="description" content="منصة تفوّق التعليمية">
     <meta name="author" content="منصة تفوّق" />
 
-    
-    
+
+
     <meta property="og:type" content="website" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,6 +21,154 @@
   <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/zAcW53hRfChjKRtPBV1nGncxlv83/social-images/social-1776785083497-35-355140_graduation-hat-png-free-graduation-cap-png-vector.webp">
   <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/zAcW53hRfChjKRtPBV1nGncxlv83/social-images/social-1776785083497-35-355140_graduation-hat-png-free-graduation-cap-png-vector.webp">
   <meta name="twitter:card" content="summary_large_image">
+  <style>
+    /* Visibility gate — body stays hidden until BrandThemeProvider (or the
+       boot script below when cache is present) flips data-brand-ready on
+       <html>. Prevents the brief flash of unstyled / wrong-theme content. */
+    html:not([data-brand-ready]) body { visibility: hidden; }
+  </style>
+  <script>
+    // Branding boot script — paints the cached published brand before any
+    // component mounts so first paint already has the right theme, title,
+    // favicon, and admin color overrides (no default-theme flash).
+    //
+    // Mirrors what BrandThemeProvider applies once React is alive. Runs
+    // synchronously in <head> so the very first paint is correct.
+    //
+    // data-brand-ready gate: only flipped here when cache exists. Without
+    // cache the visibility gate stays in effect and React's
+    // BrandThemeProvider is responsible for revealing the body once it has
+    // resolved the real brand from the DB.
+    (function () {
+      // Always drop the legacy v1 cache up front — its contents can no
+      // longer be trusted (it could hold the pre-fix moe-green default).
+      try { window.localStorage.removeItem("tfoq_branding_published_v1"); } catch (_) {}
+
+      var hasCache = false;
+      try {
+        var raw = window.localStorage.getItem("tfoq_branding_published_v2");
+        if (raw) {
+          var b = JSON.parse(raw);
+          // Only treat as a real published brand when the cached payload has
+          // the shape of a branding row (theme_id string + non-empty). An
+          // empty object or stale DEFAULT would otherwise reveal a wrong
+          // brand before React gets a chance to apply the DB row.
+          if (
+            b &&
+            typeof b === "object" &&
+            typeof b.theme_id === "string" &&
+            b.theme_id.length > 0
+          ) {
+            hasCache = true;
+
+            var root = document.documentElement;
+            if (b.theme_id) root.setAttribute("data-theme", b.theme_id);
+
+            if (b.brand_name && typeof b.brand_name === "string") {
+              document.title = b.brand_name;
+              setMeta("meta[property=\"og:title\"]", b.brand_name);
+              setMeta("meta[name=\"twitter:title\"]", b.brand_name);
+            }
+
+            if (b.logo_url) {
+              var link = document.querySelector("link[rel~='icon']");
+              if (!link) {
+                link = document.createElement("link");
+                link.rel = "icon";
+                document.head.appendChild(link);
+              }
+              link.href = b.logo_url;
+            }
+
+            var primaryHsl = b.primary ? hexToHslTriplet(b.primary) : null;
+            if (primaryHsl) applyPrimary(root, primaryHsl);
+            var accentHsl = b.accent ? hexToHslTriplet(b.accent) : null;
+            if (accentHsl) applyAccent(root, accentHsl);
+          }
+        }
+      } catch (_) { /* localStorage disabled / JSON broken — fall back, React will apply */ }
+
+      // NOTE: We deliberately do NOT flip data-brand-ready here, even when
+      // cache exists. Cache may pre-apply the theme under the gate so the
+      // first visible paint is seamless, but the body must stay hidden until
+      // React's BrandThemeProvider confirms the DB-settled branding (or an
+      // active tab preview). Otherwise a stale localStorage row would reveal
+      // the page before the live DB row resolves.
+      if (typeof window !== "undefined") {
+        // expose for debug only — not used for reveal logic
+        window.__tfoqBootHasCache = hasCache;
+      }
+
+      function setMeta(sel, val) {
+        var el = document.querySelector(sel);
+        if (el) el.content = val;
+      }
+
+      function hexToHslTriplet(hex) {
+        var m = /^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.exec(String(hex).trim());
+        if (!m) return null;
+        var h = m[1];
+        if (h.length === 3) h = h.split("").map(function (c) { return c + c; }).join("");
+        var r = parseInt(h.slice(0, 2), 16) / 255;
+        var g = parseInt(h.slice(2, 4), 16) / 255;
+        var bl = parseInt(h.slice(4, 6), 16) / 255;
+        var max = Math.max(r, g, bl);
+        var min = Math.min(r, g, bl);
+        var hh = 0, s = 0;
+        var l = (max + min) / 2;
+        if (max !== min) {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: hh = ((g - bl) / d + (g < bl ? 6 : 0)); break;
+            case g: hh = (bl - r) / d + 2; break;
+            case bl: hh = (r - g) / d + 4; break;
+          }
+          hh *= 60;
+        }
+        return Math.round(hh) + " " + Math.round(s * 100) + "% " + Math.round(l * 100) + "%";
+      }
+
+      function luminance(t) {
+        var p = t.split(/\s+/);
+        if (p.length < 3) return 0.5;
+        var l = parseFloat(p[2].replace("%", ""));
+        return isNaN(l) ? 0.5 : l / 100;
+      }
+      function adjustL(t, d) {
+        var p = t.split(/\s+/);
+        if (p.length < 3) return t;
+        var l = Math.max(0, Math.min(100, parseFloat(p[2].replace("%", "")) + d));
+        return p[0] + " " + p[1] + " " + Math.round(l) + "%";
+      }
+
+      function applyPrimary(root, hsl) {
+        var lum = luminance(hsl);
+        var fg = lum < 0.55 ? "0 0% 100%" : "0 0% 10%";
+        var glow = adjustL(hsl, 12);
+        var gradMid = adjustL(hsl, 8);
+        root.style.setProperty("--primary", hsl);
+        root.style.setProperty("--primary-foreground", fg);
+        root.style.setProperty("--primary-glow", glow);
+        root.style.setProperty("--ring", hsl);
+        root.style.setProperty("--gradient-primary", "linear-gradient(135deg, hsl(" + hsl + "), hsl(" + gradMid + "))");
+        root.style.setProperty("--shadow-soft", "0 4px 20px -8px hsl(" + hsl + " / 0.15)");
+        root.style.setProperty("--shadow-elegant", "0 10px 40px -12px hsl(" + hsl + " / 0.25)");
+        root.style.setProperty("--sidebar-background", hsl);
+        root.style.setProperty("--sidebar-foreground", "0 0% 95%");
+        root.style.setProperty("--sidebar-primary-foreground", "158 45% 12%");
+      }
+
+      function applyAccent(root, hsl) {
+        var lum = luminance(hsl);
+        var fg = lum < 0.6 ? "158 45% 12%" : "0 0% 100%";
+        root.style.setProperty("--accent", hsl);
+        root.style.setProperty("--accent-foreground", fg);
+        root.style.setProperty("--sidebar-primary", hsl);
+        root.style.setProperty("--sidebar-ring", hsl);
+      }
+    })();
+  </script>
 </head>
 
   <body>
