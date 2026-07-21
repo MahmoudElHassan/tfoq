@@ -13,7 +13,6 @@ type Question = {
   id: string;
   question_text: string;
   option_a: string; option_b: string; option_c: string; option_d: string;
-  correct_option: string;
   explanation: string | null;
   points: number;
   difficulty: string;
@@ -30,6 +29,7 @@ const Quiz = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQ, setCurrentQ] = useState<Question | null>(null);
+  const [correctOption, setCorrectOption] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -55,16 +55,16 @@ const Quiz = () => {
   useEffect(() => {
     const load = async () => {
       // تقليل bandwidth: نختار فقط الأعمدة المطلوبة + سقف 60 سؤال لكل جلسة
+      // NOTE: نقرأ من public.questions_safe (بدون correct_option) — التحقق
+      // يتم عبر RPC server-side بعد الإجابة.
       const { data: subs } = await supabase
         .from("subjects")
         .select("id,name,type")
         .order("type");
       setSubjects(subs ?? []);
       let q = supabase
-        .from("questions")
-        .select(
-          "id,question_text,option_a,option_b,option_c,option_d,correct_option,explanation,points,difficulty"
-        )
+        .from("questions_safe")
+        .select("id,question_text,option_a,option_b,option_c,option_d,explanation,points,difficulty")
         .limit(60);
       if (subjectId) q = q.eq("subject_id", subjectId);
       const { data: qs } = await q;
@@ -82,6 +82,7 @@ const Quiz = () => {
     setSpinning(true);
     setSelected(null);
     setAnswered(false);
+    setCorrectOption(null);
     const turns = 5 + Math.random() * 3;
     const newRotation = rotation + turns * 360;
     setRotation(newRotation);
@@ -95,26 +96,36 @@ const Quiz = () => {
   };
 
   const submitAnswer = async () => {
-    if (!selected || !currentQ || !user || answered) return; // منع الضغط المزدوج
-    const isCorrect = selected === currentQ.correct_option;
-    const earned = isCorrect ? currentQ.points : 0;
+    if (!selected || !currentQ || !user || answered) return;
     setAnswered(true);
 
-    if (isCorrect) {
-      setSessionPoints((p) => p + earned);
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-    }
-
-    // حفظ آمن مع retry + offline queue
+    // أرسل المحاولة عبر submit_quiz_attempt — الخادم يحسب is_correct +
+    // correct_option + النقاط ويمنع التكرار عبر client_id (RPC واحد فقط،
+    // بدون استدعاء check_answer منفصل لتقليل الراودتريب بحمل الاختبارات).
     const result = await saveAnswer({
-      student_id: user.id,
       question_id: currentQ.id,
       selected_option: selected,
-      is_correct: isCorrect,
-      points_earned: earned,
     });
 
-    if (result.queued && !result.saved) {
+    if (result.saved && result.attempt.correct_option) {
+      const correctChar = result.attempt.correct_option;
+      setCorrectOption(correctChar);
+      const isCorrect = result.attempt.is_correct;
+      const earned = result.attempt.points_earned;
+
+      if (isCorrect) {
+        setSessionPoints((p) => p + earned);
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      }
+    } else if (result.saved) {
+      // Server OK but payload incomplete (e.g. migration not applied yet).
+      setAnswered(false);
+      toast.error("تعذّر عرض نتيجة التحقق", {
+        description: "أعيدي المحاولة بعد لحظات.",
+      });
+    } else {
+      // queued-only: allow retry; do not lock the question as graded
+      setAnswered(false);
       const remaining = getQueueSize();
       toast.warning("إجابتك محفوظة محلياً", {
         description: `جارٍ المحاولة مجدداً... (${remaining} إجابة في الانتظار)`,
@@ -122,7 +133,12 @@ const Quiz = () => {
     }
   };
 
-  const next = () => { setCurrentQ(null); setSelected(null); setAnswered(false); };
+  const next = () => {
+    setCurrentQ(null);
+    setSelected(null);
+    setAnswered(false);
+    setCorrectOption(null);
+  };
 
   const opts = currentQ ? [
     { k: "A", v: currentQ.option_a }, { k: "B", v: currentQ.option_b },
@@ -236,7 +252,7 @@ const Quiz = () => {
                 <div className="space-y-3">
                   {opts.map((opt) => {
                     const isSelected = selected === opt.k;
-                    const isCorrect = answered && opt.k === currentQ.correct_option;
+                    const isCorrect = answered && correctOption !== null && opt.k.toUpperCase() === correctOption;
                     const isWrong = answered && isSelected && !isCorrect;
                     return (
                       <button key={opt.k} disabled={answered}
@@ -260,7 +276,7 @@ const Quiz = () => {
                   })}
                 </div>
 
-                {answered && currentQ.explanation && (
+                {answered && correctOption !== null && currentQ.explanation && (
                   <div className="mt-5 p-4 rounded-xl bg-info/10 border border-info/20">
                     <p className="font-bold text-sm flex items-center gap-2 text-info"><Lightbulb className="w-4 h-4" />الشرح</p>
                     <p className="text-sm mt-2 text-foreground leading-relaxed">{currentQ.explanation}</p>

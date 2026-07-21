@@ -12,13 +12,21 @@ const BASE_DELAY_MS = 800;
 
 export type PendingAnswer = {
   client_id: string; // مفتاح فريد لمنع التكرار
-  student_id: string;
   question_id: string;
   selected_option: string;
-  is_correct: boolean;
-  points_earned: number;
   attempted_at: string;
 };
+
+export type SubmitAttemptResult = {
+  attempt_id: string;
+  is_correct: boolean;
+  points_earned: number;
+  correct_option: string;
+};
+
+export type SaveAnswerResult =
+  | { saved: true; queued: false; client_id: string; attempt: SubmitAttemptResult }
+  | { saved: false; queued: true; client_id: string };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -49,33 +57,53 @@ const enqueue = (a: PendingAnswer) => {
   writeQueue(q);
 };
 
-const insertOnce = async (a: PendingAnswer): Promise<boolean> => {
-  // ملاحظة: client_id يُستخدم محلياً فقط لمنع تكرار الإرسال من نفس الجهاز
-  const { error } = await supabase.from("quiz_attempts").insert({
-    student_id: a.student_id,
-    question_id: a.question_id,
-    selected_option: a.selected_option,
-    is_correct: a.is_correct,
-    points_earned: a.points_earned,
+/**
+ * Send the attempt through the SECURITY DEFINER RPC. The server reads
+ * correct_option + points from the questions table — the client cannot
+ * inflate is_correct / points_earned. Returns the parsed attempt row
+ * (including correct_option) on success, or null on any transport /
+ * RPC error so the caller can decide whether to queue.
+ *
+ * client_id UNIQUE makes the operation idempotent on retries and queue
+ * flushes — repeating the same call returns the original row.
+ */
+const submitOnce = async (a: PendingAnswer): Promise<SubmitAttemptResult | null> => {
+  const { data, error } = await supabase.rpc("submit_quiz_attempt", {
+    p_question_id: a.question_id,
+    p_selected: a.selected_option,
+    p_client_id: a.client_id,
   });
-  return !error;
+  if (error) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  const correct = String(row.correct_option ?? "").trim().toUpperCase();
+  const attemptId = String(row.attempt_id ?? "");
+  if (!attemptId || !correct) return null;
+  return {
+    attempt_id: attemptId,
+    is_correct: Boolean(row.is_correct),
+    points_earned: Number(row.points_earned ?? 0),
+    correct_option: correct,
+  };
 };
 
 /**
  * يحفظ إجابة الطالبة مع كل الاحتياطات.
  * - يضع نسخة في localStorage فوراً
- * - يحاول الإرسال مع backoff
+ * - يحاول الإرسال مع backoff عبر submit_quiz_attempt (آمن + متكرّر-آمن)
  * - عند الفشل يبقى في القائمة للمزامنة لاحقاً
- * - يُرجع true إذا حُفظت محلياً (دائماً) — الحفظ على الخادم قد يتأخر
+ * - عند النجاح يُرجع attempt (attempt_id, is_correct, points_earned,
+ *   correct_option) ليُحدِّث الـ UI دون استدعاء RPC إضافي.
  */
-export const saveAnswer = async (a: Omit<PendingAnswer, "client_id" | "attempted_at"> & { client_id?: string }) => {
+export const saveAnswer = async (a: {
+  question_id: string;
+  selected_option: string;
+  client_id?: string;
+}): Promise<SaveAnswerResult> => {
   const payload: PendingAnswer = {
     client_id: a.client_id ?? crypto.randomUUID(),
-    student_id: a.student_id,
     question_id: a.question_id,
     selected_option: a.selected_option,
-    is_correct: a.is_correct,
-    points_earned: a.points_earned,
     attempted_at: new Date().toISOString(),
   };
 
@@ -84,16 +112,21 @@ export const saveAnswer = async (a: Omit<PendingAnswer, "client_id" | "attempted
   // محاولة فورية مع backoff
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     if (!navigator.onLine) break;
-    const ok = await insertOnce(payload);
-    if (ok) {
+    const result = await submitOnce(payload);
+    if (result) {
       removeFromQueue(payload.client_id);
-      return { saved: true, queued: false };
+      return {
+        saved: true,
+        queued: false,
+        client_id: payload.client_id,
+        attempt: result,
+      };
     }
     await sleep(BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 200);
   }
 
   // الإجابة لا تزال في القائمة، ستُرسَل تلقائياً
-  return { saved: false, queued: true };
+  return { saved: false, queued: true, client_id: payload.client_id };
 };
 
 /**
@@ -108,8 +141,8 @@ export const flushQueue = async () => {
   let flushed = 0;
   for (const a of q) {
     if (!navigator.onLine) break;
-    const ok = await insertOnce(a);
-    if (ok) {
+    const result = await submitOnce(a);
+    if (result) {
       removeFromQueue(a.client_id);
       flushed++;
     }

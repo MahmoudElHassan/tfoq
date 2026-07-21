@@ -1,19 +1,42 @@
 import { Link } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { Button } from "@/components/ui/button";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
+
+type Branding = {
+  logo_url: string;
+  brand_name: string;
+  theme_id: string;
+  primary: string | null;
+  accent: string | null;
+};
+
+const DEFAULT_BRANDING: Branding = {
+  logo_url: "",
+  brand_name: "منصة تفوّق",
+  theme_id: "moe-green",
+  primary: null,
+  accent: null,
+};
 
 export const SiteNav = () => {
   const { user, signOut } = useAuth();
+  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
   return (
     <nav className="sticky top-0 z-40 bg-card/85 backdrop-blur-md border-b border-border">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft">
-            <GraduationCap className="w-6 h-6 text-primary-foreground" />
-          </div>
+          {brand.logo_url ? (
+            <img src={brand.logo_url} alt={brand.brand_name} className="w-10 h-10 rounded-xl object-contain bg-card shadow-soft" />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft">
+              <GraduationCap className="w-6 h-6 text-primary-foreground" />
+            </div>
+          )}
           <div>
-            <p className="font-display font-extrabold text-foreground leading-none">منصة تفوّق</p>
+            <p className="font-display font-extrabold text-foreground leading-none">{brand.brand_name}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">للتحصيلي والقدرات</p>
           </div>
         </Link>
@@ -27,6 +50,7 @@ export const SiteNav = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <DarkModeToggle />
           {user ? (
             <>
               <Link to="/dashboard"><Button variant="outline" size="sm">لوحتي</Button></Link>

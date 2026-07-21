@@ -9,6 +9,23 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteContent } from "@/hooks/useSiteContent";
+
+type Branding = {
+  logo_url: string;
+  brand_name: string;
+  theme_id: string;
+  primary: string | null;
+  accent: string | null;
+};
+
+const DEFAULT_BRANDING: Branding = {
+  logo_url: "",
+  brand_name: "منصة تفوّق",
+  theme_id: "moe-green",
+  primary: null,
+  accent: null,
+};
 
 const signupSchema = z.object({
   full_name: z.string().trim().min(2, "الاسم قصير").max(100),
@@ -28,6 +45,7 @@ const Auth = () => {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
   const isSignup = params.get("mode") === "signup";
   const [loading, setLoading] = useState(false);
 
@@ -117,11 +135,15 @@ const Auth = () => {
 
       <div className="relative w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-elegant">
-            <GraduationCap className="w-8 h-8 text-primary-foreground" />
-          </div>
+          {brand.logo_url ? (
+            <img src={brand.logo_url} alt={brand.brand_name} className="w-14 h-14 rounded-2xl object-contain bg-card shadow-elegant" />
+          ) : (
+            <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-elegant">
+              <GraduationCap className="w-8 h-8 text-primary-foreground" />
+            </div>
+          )}
           <div>
-            <p className="font-display text-xl sm:text-2xl font-extrabold">منصة تفوّق</p>
+            <p className="font-display text-xl sm:text-2xl font-extrabold">{brand.brand_name}</p>
             <p className="t-small text-muted-foreground">للتحصيلي والقدرات</p>
           </div>
         </Link>

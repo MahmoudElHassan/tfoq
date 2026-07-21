@@ -1,9 +1,27 @@
-import { LayoutDashboard, BarChart3, BookOpenCheck, Users, GraduationCap, UserCog, Settings, LogOut, UsersRound, FileEdit, Activity } from "lucide-react";
+import { LayoutDashboard, BarChart3, BookOpenCheck, Users, GraduationCap, UserCog, Settings, LogOut, UsersRound, FileEdit, Activity, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { Menu } from "lucide-react";
+
+type Branding = {
+  logo_url: string;
+  brand_name: string;
+  theme_id: string;
+  primary: string | null;
+  accent: string | null;
+};
+
+const DEFAULT_BRANDING: Branding = {
+  logo_url: "",
+  brand_name: "منصة تفوّق",
+  theme_id: "moe-green",
+  primary: null,
+  accent: null,
+};
 
 interface SidebarProps {
   active: string;
@@ -17,6 +35,7 @@ const items = [
   { id: "stats", label: "الإحصائيات التفصيلية", icon: BarChart3 },
   { id: "users", label: "إدارة المستخدمين", icon: UsersRound },
   { id: "content", label: "تحرير الصفحة الرئيسية", icon: FileEdit },
+  { id: "faq", label: "الأسئلة الشائعة", icon: MessageCircle },
   { id: "questions", label: "إدارة التعلّم", icon: BookOpenCheck },
   { id: "teachers", label: "المعلمات والتفويض", icon: UserCog },
   { id: "students", label: "الطالبات", icon: GraduationCap },
@@ -25,18 +44,26 @@ const items = [
 
 const SidebarInner = ({ active, onChange }: SidebarProps) => {
   const { user, signOut } = useAuth();
+  const { content: brand } = useSiteContent<Branding>("branding", DEFAULT_BRANDING);
   const initial = (user?.email?.[0] ?? "م").toUpperCase();
   return (
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shadow-elegant">
-            <GraduationCap className="w-7 h-7 text-sidebar-primary-foreground" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {brand.logo_url ? (
+              <img src={brand.logo_url} alt={brand.brand_name} className="w-12 h-12 rounded-xl object-contain bg-card shadow-elegant" />
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shadow-elegant shrink-0">
+                <GraduationCap className="w-7 h-7 text-sidebar-primary-foreground" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <h1 className="font-display text-xl font-extrabold leading-tight truncate">{brand.brand_name}</h1>
+              <p className="text-xs text-sidebar-foreground/70">ثانوية الطالبات</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-xl font-extrabold leading-tight">منصة تفوّق</h1>
-            <p className="text-xs text-sidebar-foreground/70">ثانوية الطالبات</p>
-          </div>
+          <DarkModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
         </div>
       </div>
 
