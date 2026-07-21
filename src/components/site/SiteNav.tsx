@@ -3,6 +3,7 @@ import { GraduationCap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { Button } from "@/components/ui/button";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 type Branding = {
   logo_url: string;
@@ -49,6 +50,7 @@ export const SiteNav = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <DarkModeToggle />
           {user ? (
             <>
               <Link to="/dashboard"><Button variant="outline" size="sm">لوحتي</Button></Link>

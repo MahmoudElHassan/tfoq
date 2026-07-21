@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Activity, Users, Zap, AlertTriangle, CheckCircle2, TrendingUp, Database, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +29,8 @@ type Stats = {
 const REFRESH_ACTIVE_MS = 15000;   // 15ث عند وجود طالبات نشطات
 const REFRESH_LOW_MS = 45000;      // 45ث عند نشاط خفيف (<10 طالبات)
 const REFRESH_IDLE_MS = 120000;    // دقيقتان عند الهدوء التام
-const RECENT_LIMIT = 10;
+const RECENT_LIMIT = 100;          // سقف صفوف المعروض في البث اللحظي
+const BATCH_FLUSH_MS = 2000;       // تجميع إدخالات postgres_changes لـ 2 ث قبل تطبيقها
 
 const HEALTH_THRESHOLDS = {
   attemptsPerMinute: { warn: 200, danger: 500 },
@@ -141,57 +142,111 @@ const AdminLiveMonitor = () => {
     };
     tick();
 
-    // اشتراك لحظي: أي إجابة جديدة تُحدِّث الواجهة فوراً دون انتظار polling
+    // اشتراك لحظي: نجمّع الإدخالات في buffer ثم نطبّقها دفعة واحدة
+    // كل BATCH_FLUSH_MS لتقليل ريندرز + استعلامات profiles عند الضغط
+    // (W_DOUBLE local) ونحترم document.hidden لتجنّب العمل في الخلفية.
+    type Incoming = {
+      id: string;
+      student_id: string;
+      question_id: string;
+      is_correct: boolean;
+      points_earned: number;
+      attempted_at: string;
+    };
+    const buffer: Incoming[] = [];
+    let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const flushBuffer = async () => {
+      if (cancelled) return;
+      if (buffer.length === 0) return;
+      if (typeof document !== "undefined" && document.hidden) {
+        // نُؤجّل التطبيق حتى عودة التبويب للنشاط
+        flushTimer = setTimeout(flushBuffer, BATCH_FLUSH_MS);
+        return;
+      }
+      const drained = buffer.splice(0, buffer.length);
+      const ids = Array.from(new Set(drained.map((r) => r.student_id)));
+      const nameMap = new Map<string, string>();
+      if (ids.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", ids);
+        (profs ?? []).forEach((p: any) => nameMap.set(p.id, p.full_name));
+      }
+      const additions: RecentAttempt[] = drained.map((r) => ({
+        ...r,
+        student_name: nameMap.get(r.student_id) ?? "—",
+      }));
+
+      setRecent((prev) =>
+        [...additions, ...prev].slice(0, RECENT_LIMIT)
+      );
+      setLastUpdate(new Date());
+
+      // تحديث العدّادات تدريجياً (تقدير سريع، يُصحَّح في tick القادم)
+      const bump = drained.length;
+      setStats((s) =>
+        s
+          ? {
+              ...s,
+              attemptsLastMinute: s.attemptsLastMinute + bump,
+              attemptsLast5Min: s.attemptsLast5Min + bump,
+              attemptsLastHour: s.attemptsLastHour + bump,
+            }
+          : s
+      );
+    };
+
+    const scheduleFlush = () => {
+      if (flushTimer) return;
+      flushTimer = setTimeout(() => {
+        flushTimer = null;
+        void flushBuffer();
+      }, BATCH_FLUSH_MS);
+    };
+
     const channel = supabase
       .channel("admin-live-attempts")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "quiz_attempts" },
-        async (payload) => {
+        (payload) => {
           const row: any = payload.new;
-          // اجلب اسم الطالبة
-          let student_name = "—";
-          const { data: prof } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", row.student_id)
-            .maybeSingle();
-          if (prof?.full_name) student_name = prof.full_name;
-
-          setRecent((prev) =>
-            [
-              {
-                id: row.id,
-                student_id: row.student_id,
-                question_id: row.question_id ?? "",
-                is_correct: row.is_correct,
-                points_earned: row.points_earned,
-                attempted_at: row.attempted_at,
-                student_name,
-              },
-              ...prev,
-            ].slice(0, RECENT_LIMIT)
-          );
-          setLastUpdate(new Date());
-
-          // تحديث العدّادات تدريجياً (تقدير سريع، يُصحَّح في tick القادم)
-          setStats((s) =>
-            s
-              ? {
-                  ...s,
-                  attemptsLastMinute: s.attemptsLastMinute + 1,
-                  attemptsLast5Min: s.attemptsLast5Min + 1,
-                  attemptsLastHour: s.attemptsLastHour + 1,
-                }
-              : s
-          );
+          buffer.push({
+            id: row.id,
+            student_id: row.student_id,
+            question_id: row.question_id ?? "",
+            is_correct: row.is_correct,
+            points_earned: row.points_earned,
+            attempted_at: row.attempted_at,
+          });
+          // Cap buffer while tab is hidden so memory cannot grow without bound.
+          if (buffer.length > RECENT_LIMIT * 2) {
+            buffer.splice(0, buffer.length - RECENT_LIMIT);
+          }
+          scheduleFlush();
         }
       )
       .subscribe();
 
+    // عند عودة التبويب للنشاط طبّق ما تجمّع فوراً
+    const onVisibility = () => {
+      if (!document.hidden && buffer.length > 0) {
+        if (flushTimer) {
+          clearTimeout(flushTimer);
+          flushTimer = null;
+        }
+        void flushBuffer();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
+      if (flushTimer) clearTimeout(flushTimer);
+      document.removeEventListener("visibilitychange", onVisibility);
       supabase.removeChannel(channel);
     };
   }, [isAdmin]);

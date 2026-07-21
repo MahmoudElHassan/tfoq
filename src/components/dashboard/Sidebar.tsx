@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { Menu } from "lucide-react";
 
 type Branding = {
@@ -48,18 +49,21 @@ const SidebarInner = ({ active, onChange }: SidebarProps) => {
   return (
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          {brand.logo_url ? (
-            <img src={brand.logo_url} alt={brand.brand_name} className="w-12 h-12 rounded-xl object-contain bg-card shadow-elegant" />
-          ) : (
-            <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shadow-elegant">
-              <GraduationCap className="w-7 h-7 text-sidebar-primary-foreground" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {brand.logo_url ? (
+              <img src={brand.logo_url} alt={brand.brand_name} className="w-12 h-12 rounded-xl object-contain bg-card shadow-elegant" />
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shadow-elegant shrink-0">
+                <GraduationCap className="w-7 h-7 text-sidebar-primary-foreground" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <h1 className="font-display text-xl font-extrabold leading-tight truncate">{brand.brand_name}</h1>
+              <p className="text-xs text-sidebar-foreground/70">ثانوية الطالبات</p>
             </div>
-          )}
-          <div>
-            <h1 className="font-display text-xl font-extrabold leading-tight">{brand.brand_name}</h1>
-            <p className="text-xs text-sidebar-foreground/70">ثانوية الطالبات</p>
           </div>
+          <DarkModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
         </div>
       </div>
 

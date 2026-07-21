@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { getThemeById, hexToHslTriplet } from "@/lib/themes";
 import {
@@ -68,6 +69,7 @@ const ACCENT_VARS = [
  * from subdomain/slug and fetches the per-school row; the UI doesn't change.
  */
 export const BrandThemeProvider = () => {
+  const { resolvedTheme } = useTheme();
   const { content } = useSiteContent<BrandingRow>("branding", DEFAULT_BRANDING);
   // Track what we last applied so we can fully clear on a change
   // (e.g., admin un-sets primary — remove everything we set).
@@ -146,6 +148,7 @@ export const BrandThemeProvider = () => {
     active.primary,
     active.accent,
     active.logo_url,
+    resolvedTheme,
   ]);
 
   return null;

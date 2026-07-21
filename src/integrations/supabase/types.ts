@@ -702,6 +702,7 @@ export type Database = {
         Args: { p_client_id: string; p_question_id: string; p_selected: string }
         Returns: {
           attempt_id: string
+          correct_option: string
           is_correct: boolean
           points_earned: number
         }[]

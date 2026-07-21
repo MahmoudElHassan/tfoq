@@ -176,6 +176,16 @@ FROM public.questions;
 
 GRANT SELECT ON public.questions_safe TO anon, authenticated;
 
+-- Service-role needs explicit table grants even with RLS bypassed.
+-- Load-test helpers in scripts/load-tests/local/node require reading and
+-- (for resets) updating profiles + user_roles + questions.
+GRANT SELECT, UPDATE, DELETE ON public.profiles TO service_role;
+GRANT SELECT ON public.user_roles TO service_role;
+GRANT SELECT ON public.questions TO service_role;
+GRANT SELECT, DELETE ON public.quiz_attempts TO service_role;
+GRANT EXECUTE ON FUNCTION public.submit_quiz_attempt(UUID, CHAR, TEXT) TO service_role;
+GRANT INSERT, SELECT ON public.quiz_attempts TO authenticated;
+
 -- Replace the broad table SELECT with one that is scoped to admins/teachers
 -- (authoring view) and remove the catch-all student policy. Students will
 -- read from public.questions_safe instead.
@@ -251,8 +261,40 @@ GRANT EXECUTE ON FUNCTION public.admin_list_template_questions(UUID) TO authenti
 
 -- Realtime publication must include the safe views (cheap) so student-side
 -- list subscriptions still work without leaking correct_option.
-ALTER PUBLICATION supabase_realtime ADD TABLE public.questions_safe;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.quiz_template_questions_safe;
+-- NOTE: Supabase Realtime publications on standard PostgreSQL do not accept
+-- VIEWs (PostgreSQL logical replication only replicates base tables). The
+-- view is intentionally NOT added; downstream realtime listeners use the
+-- underlying `questions` / `quiz_template_questions` tables where RLS
+-- already restricts access. Guard each ALTER with an EXISTS check so we
+-- only touch base tables and skip views.
+DO $do$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+     WHERE n.nspname = 'public'
+       AND c.relname = 'questions_safe'
+       AND c.relkind = 'r'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.questions_safe;
+  ELSE
+    RAISE NOTICE 'questions_safe is not a base table; skipped realtime publication';
+  END IF;
+  IF EXISTS (
+    SELECT 1
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+     WHERE n.nspname = 'public'
+       AND c.relname = 'quiz_template_questions_safe'
+       AND c.relkind = 'r'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.quiz_template_questions_safe;
+  ELSE
+    RAISE NOTICE 'quiz_template_questions_safe is not a base table; skipped realtime publication';
+  END IF;
+END
+$do$;
 
 -- -----------------------------------------------------------------------------
 -- 6) Parent unlink DELETE is currently gated only by

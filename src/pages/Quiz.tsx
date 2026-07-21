@@ -99,32 +99,33 @@ const Quiz = () => {
     if (!selected || !currentQ || !user || answered) return;
     setAnswered(true);
 
-    // 1) احصل على الإجابة الصحيحة من الخادم عبر SECURITY DEFINER RPC
-    const { data: correct, error: checkErr } = await supabase.rpc("check_answer", {
-      p_question_id: currentQ.id,
-    });
-    if (checkErr || !correct) {
-      toast.error("تعذّر التحقق من الإجابة", { description: checkErr?.message });
-      return;
-    }
-    const correctChar = String(correct).trim().toUpperCase();
-    setCorrectOption(correctChar);
-    const isCorrect = selected.toUpperCase() === correctChar;
-    const earned = isCorrect ? currentQ.points : 0;
-
-    if (isCorrect) {
-      setSessionPoints((p) => p + earned);
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-    }
-
-    // 2) أرسل المحاولة عبر submit_quiz_attempt — الخادم يحسب is_correct
-    //    والنقاط ويمنع التكرار عبر client_id.
+    // أرسل المحاولة عبر submit_quiz_attempt — الخادم يحسب is_correct +
+    // correct_option + النقاط ويمنع التكرار عبر client_id (RPC واحد فقط،
+    // بدون استدعاء check_answer منفصل لتقليل الراودتريب بحمل الاختبارات).
     const result = await saveAnswer({
       question_id: currentQ.id,
       selected_option: selected,
     });
 
-    if (result.queued && !result.saved) {
+    if (result.saved && result.attempt.correct_option) {
+      const correctChar = result.attempt.correct_option;
+      setCorrectOption(correctChar);
+      const isCorrect = result.attempt.is_correct;
+      const earned = result.attempt.points_earned;
+
+      if (isCorrect) {
+        setSessionPoints((p) => p + earned);
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      }
+    } else if (result.saved) {
+      // Server OK but payload incomplete (e.g. migration not applied yet).
+      setAnswered(false);
+      toast.error("تعذّر عرض نتيجة التحقق", {
+        description: "أعيدي المحاولة بعد لحظات.",
+      });
+    } else {
+      // queued-only: allow retry; do not lock the question as graded
+      setAnswered(false);
       const remaining = getQueueSize();
       toast.warning("إجابتك محفوظة محلياً", {
         description: `جارٍ المحاولة مجدداً... (${remaining} إجابة في الانتظار)`,
@@ -275,7 +276,7 @@ const Quiz = () => {
                   })}
                 </div>
 
-                {answered && currentQ.explanation && (
+                {answered && correctOption !== null && currentQ.explanation && (
                   <div className="mt-5 p-4 rounded-xl bg-info/10 border border-info/20">
                     <p className="font-bold text-sm flex items-center gap-2 text-info"><Lightbulb className="w-4 h-4" />الشرح</p>
                     <p className="text-sm mt-2 text-foreground leading-relaxed">{currentQ.explanation}</p>

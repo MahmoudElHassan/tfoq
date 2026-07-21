@@ -8,6 +8,7 @@
      when the admin picks a different theme. data-theme is set on <html>. */
   :root,
   [data-theme="moe-green"] {
+    color-scheme: light;
     --background: 150 30% 98%;
     --foreground: 158 45% 12%;
 
@@ -267,23 +268,153 @@
   }
 
   .dark {
-    --background: 158 35% 8%;
-    --foreground: 150 25% 95%;
-    --card: 158 35% 11%;
-    --card-foreground: 150 25% 95%;
-    --popover: 158 35% 11%;
-    --popover-foreground: 150 25% 95%;
-    --primary: 152 70% 45%;
-    --primary-foreground: 158 45% 8%;
-    --secondary: 158 25% 16%;
-    --secondary-foreground: 150 25% 95%;
-    --muted: 158 25% 14%;
-    --muted-foreground: 150 15% 65%;
-    --accent: 45 95% 55%;
-    --accent-foreground: 158 45% 12%;
-    --border: 158 25% 18%;
-    --input: 158 25% 18%;
-    --ring: 152 70% 45%;
+    color-scheme: dark;
+    --background: 220 12% 9%;
+    --foreground: 220 10% 95%;
+    --card: 220 10% 12%;
+    --card-foreground: 220 10% 95%;
+    --popover: 220 10% 12%;
+    --popover-foreground: 220 10% 95%;
+    --secondary: 220 8% 16%;
+    --secondary-foreground: 220 10% 92%;
+    --muted: 220 8% 15%;
+    --muted-foreground: 220 8% 65%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 60% 48%;
+    --info: 210 85% 62%;
+    --warning: 35 95% 58%;
+    --border: 220 8% 20%;
+    --input: 220 8% 20%;
+    --gradient-soft: linear-gradient(135deg, hsl(220 12% 9%), hsl(220 8% 16%));
+    --shadow-card: 0 2px 12px -4px hsl(220 30% 2% / 0.35);
+  }
+
+  .dark:not([data-theme]),
+  .dark[data-theme="moe-green"] {
+    --primary: 152 72% 42%;
+    --primary-foreground: 220 12% 9%;
+    --primary-glow: 152 65% 52%;
+    --accent: 45 95% 58%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 152 72% 42%;
+    --gradient-primary: linear-gradient(135deg, hsl(152 72% 38%), hsl(152 65% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 95% 58%), hsl(38 90% 52%));
+    --shadow-soft: 0 4px 20px -8px hsl(152 72% 42% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(152 72% 42% / 0.18);
+    --sidebar-background: 152 75% 19%;
+    --sidebar-foreground: 150 20% 95%;
+    --sidebar-primary: 45 95% 58%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 152 60% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 152 45% 28%;
+    --sidebar-ring: 45 95% 58%;
+  }
+
+  .dark[data-theme="moe-navy"] {
+    --primary: 215 70% 55%;
+    --primary-foreground: 220 12% 9%;
+    --primary-glow: 215 65% 64%;
+    --accent: 32 95% 58%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 215 70% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(215 70% 48%), hsl(215 65% 60%));
+    --gradient-gold: linear-gradient(135deg, hsl(32 95% 58%), hsl(28 90% 52%));
+    --shadow-soft: 0 4px 20px -8px hsl(215 70% 55% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(215 70% 55% / 0.18);
+    --sidebar-background: 215 65% 24%;
+    --sidebar-foreground: 215 20% 95%;
+    --sidebar-primary: 32 95% 58%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 215 55% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 45% 32%;
+    --sidebar-ring: 32 95% 58%;
+  }
+
+  .dark[data-theme="moe-burgundy"] {
+    --primary: 350 65% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 350 60% 60%;
+    --accent: 38 95% 58%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 350 65% 50%;
+    --gradient-primary: linear-gradient(135deg, hsl(350 65% 44%), hsl(350 60% 56%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 95% 58%), hsl(32 90% 52%));
+    --shadow-soft: 0 4px 20px -8px hsl(350 65% 50% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(350 65% 50% / 0.18);
+    --sidebar-background: 350 62% 28%;
+    --sidebar-foreground: 350 20% 95%;
+    --sidebar-primary: 38 95% 58%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 350 52% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 350 42% 38%;
+    --sidebar-ring: 38 95% 58%;
+  }
+
+  .dark[data-theme="moe-teal"] {
+    --primary: 178 62% 45%;
+    --primary-foreground: 220 12% 9%;
+    --primary-glow: 178 55% 55%;
+    --accent: 32 95% 58%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 178 62% 45%;
+    --gradient-primary: linear-gradient(135deg, hsl(178 62% 39%), hsl(178 55% 51%));
+    --gradient-gold: linear-gradient(135deg, hsl(32 95% 58%), hsl(28 90% 52%));
+    --shadow-soft: 0 4px 20px -8px hsl(178 62% 45% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(178 62% 45% / 0.18);
+    --sidebar-background: 178 58% 24%;
+    --sidebar-foreground: 178 20% 95%;
+    --sidebar-primary: 32 95% 58%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 178 48% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 178 40% 32%;
+    --sidebar-ring: 32 95% 58%;
+  }
+
+  .dark[data-theme="moe-plum"] {
+    --primary: 285 55% 52%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 285 50% 62%;
+    --accent: 38 95% 58%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 285 55% 52%;
+    --gradient-primary: linear-gradient(135deg, hsl(285 55% 46%), hsl(285 50% 58%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 95% 58%), hsl(32 90% 52%));
+    --shadow-soft: 0 4px 20px -8px hsl(285 55% 52% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(285 55% 52% / 0.18);
+    --sidebar-background: 285 50% 29%;
+    --sidebar-foreground: 285 20% 95%;
+    --sidebar-primary: 38 95% 58%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 285 42% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 285 35% 38%;
+    --sidebar-ring: 38 95% 58%;
+  }
+
+  .dark[data-theme="moe-amber"] {
+    --primary: 30 85% 58%;
+    --primary-foreground: 220 12% 9%;
+    --primary-glow: 30 82% 66%;
+    --accent: 30 95% 60%;
+    --accent-foreground: 220 12% 9%;
+    --ring: 30 85% 58%;
+    --gradient-primary: linear-gradient(135deg, hsl(30 85% 50%), hsl(30 82% 62%));
+    --gradient-gold: linear-gradient(135deg, hsl(30 95% 60%), hsl(24 90% 53%));
+    --shadow-soft: 0 4px 20px -8px hsl(30 85% 58% / 0.12);
+    --shadow-elegant: 0 10px 40px -12px hsl(30 85% 58% / 0.18);
+    --sidebar-background: 30 72% 31%;
+    --sidebar-foreground: 35 20% 96%;
+    --sidebar-primary: 30 95% 60%;
+    --sidebar-primary-foreground: 220 12% 9%;
+    --sidebar-accent: 30 58% 23%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 30 48% 40%;
+    --sidebar-ring: 30 95% 60%;
   }
 }
 
