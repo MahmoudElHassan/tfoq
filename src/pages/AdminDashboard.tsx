@@ -19,8 +19,8 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   content: { title: "تحرير الصفحة الرئيسية", subtitle: "تعديل الهيرو، المميزات، الفوتر وكل العبارات" },
   faq: { title: "الأسئلة الشائعة", subtitle: "إدارة محتوى المساعد الذكي على الصفحة الرئيسية" },
   questions: { title: "إدارة التعلّم", subtitle: "مراكز الاختبارات المحاكية والتعلم باللعب والفيديو" },
-  teachers: { title: "المعلمات والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
-  students: { title: "الطالبات", subtitle: "قائمة طالبات المدرسة" },
+  teachers: { title: "المعلمين والتفويض", subtitle: "إدارة المهام والمواد المُكلَّفات بها" },
+  students: { title: "الطلاب", subtitle: "قائمة طلاب المدرسة" },
   parents: { title: "أولياء الأمور", subtitle: "حسابات أولياء الأمور المرتبطة" },
   settings: { title: "الإعدادات", subtitle: "إدارة الحساب وكلمة المرور" },
 };
