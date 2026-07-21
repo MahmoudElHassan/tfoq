@@ -94,9 +94,9 @@ export const Overview = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatCard label="إجمالي الحسابات الجديدة" value={counts.total.toLocaleString("ar")} icon={ShieldCheck} hint={periodLabels[period]} tone="primary" />
-        <StatCard label="الطالبات الجديدات" value={counts.students.toLocaleString("ar")} icon={GraduationCap} hint="مسجلات في الفترة" tone="gold" />
+        <StatCard label="الطلاب الجدد" value={counts.students.toLocaleString("ar")} icon={GraduationCap} hint="مسجلون في الفترة" tone="gold" />
         <StatCard label="أولياء الأمور الجدد" value={counts.parents.toLocaleString("ar")} icon={Users} hint="حسابات مفعلة" tone="info" />
-        <StatCard label="المعلمات الجديدات" value={counts.teachers.toLocaleString("ar")} icon={UserCog} hint="انضممن في الفترة" tone="success" />
+        <StatCard label="المعلمون الجدد" value={counts.teachers.toLocaleString("ar")} icon={UserCog} hint="انضموا في الفترة" tone="success" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,7 +104,7 @@ export const Overview = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-display text-lg font-bold">التسجيلات خلال {periodLabels[period]}</h3>
-              <p className="text-sm text-muted-foreground mt-1">نمو حسابات الطالبات وأولياء الأمور</p>
+              <p className="text-sm text-muted-foreground mt-1">نمو حسابات الطلاب وأولياء الأمور</p>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full text-xs font-bold">
               <Activity className="w-3.5 h-3.5" />
@@ -127,7 +127,7 @@ export const Overview = () => {
               <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" style={{ fontSize: 12, fontFamily: 'Tajawal' }} />
               <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: 12 }} allowDecimals={false} />
               <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontFamily: 'Tajawal' }} />
-              <Area type="monotone" dataKey="students" name="الطالبات" stroke="hsl(152 100% 21%)" strokeWidth={2.5} fill="url(#g1)" />
+              <Area type="monotone" dataKey="students" name="الطلاب" stroke="hsl(152 100% 21%)" strokeWidth={2.5} fill="url(#g1)" />
               <Area type="monotone" dataKey="parents" name="أولياء الأمور" stroke="hsl(45 95% 55%)" strokeWidth={2.5} fill="url(#g2)" />
             </AreaChart>
           </ResponsiveContainer>

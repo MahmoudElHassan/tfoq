@@ -76,7 +76,7 @@ const Quiz = () => {
   const spin = () => {
     const available = questions.filter((q) => !askedIds.has(q.id));
     if (available.length === 0) {
-      toast.info("أكملتِ جميع الأسئلة المتاحة!", { description: "أعيدي البدء أو اختاري مادة أخرى" });
+      toast.info("أكملت جميع الأسئلة المتاحة!", { description: "أعد البدء أو اختر مادة أخرى" });
       return;
     }
     setSpinning(true);
@@ -121,7 +121,7 @@ const Quiz = () => {
       // Server OK but payload incomplete (e.g. migration not applied yet).
       setAnswered(false);
       toast.error("تعذّر عرض نتيجة التحقق", {
-        description: "أعيدي المحاولة بعد لحظات.",
+        description: "أعد المحاولة بعد لحظات.",
       });
     } else {
       // queued-only: allow retry; do not lock the question as graded
@@ -164,7 +164,7 @@ const Quiz = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="font-display text-3xl lg:text-4xl font-extrabold">عجلة الاختبارات</h1>
-            <p className="text-muted-foreground mt-2">أديري العجلة لتلقّي سؤال عشوائي</p>
+            <p className="text-muted-foreground mt-2">أدر العجلة لتلقّي سؤال عشوائي</p>
           </div>
           <div className="bg-card rounded-2xl px-6 py-4 shadow-card border border-border flex items-center gap-3">
             <Trophy className="w-6 h-6 text-accent" />
@@ -177,7 +177,7 @@ const Quiz = () => {
 
         {!subjectId && (
           <div className="mb-8 bg-card rounded-2xl p-5 border border-border shadow-card">
-            <p className="text-sm font-bold mb-3">اختاري المادة:</p>
+            <p className="text-sm font-bold mb-3">اختر المادة:</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="default" size="sm" className="bg-primary text-primary-foreground">الكل</Button>
               {subjects.map((s) => (
@@ -224,7 +224,7 @@ const Quiz = () => {
 
             <Button onClick={spin} disabled={spinning || !!currentQ || questions.length === 0}
               className="mt-6 lg:mt-8 bg-gradient-primary text-primary-foreground hover:opacity-90 h-12 lg:h-14 px-8 lg:px-12 text-base lg:text-lg shadow-elegant gap-2">
-              {spinning ? "جارٍ الاختيار..." : currentQ ? "أجيبي على السؤال" : "أديري العجلة"}
+              {spinning ? "جارٍ الاختيار..." : currentQ ? "أجب على السؤال" : "أدر العجلة"}
               {!spinning && !currentQ && <RotateCw className="w-5 h-5" />}
             </Button>
             {questions.length === 0 && (
@@ -238,7 +238,7 @@ const Quiz = () => {
               <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground py-20">
                 <Lightbulb className="w-16 h-16 mb-4 text-muted-foreground/40" />
                 <p className="text-lg font-medium">سؤالك سيظهر هنا</p>
-                <p className="text-sm mt-2">أديري العجلة للبدء!</p>
+                <p className="text-sm mt-2">أدر العجلة للبدء!</p>
               </div>
             ) : (
               <div className="animate-fade-in">

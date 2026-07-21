@@ -1,13 +1,13 @@
 export const visibilityLabels: Record<string, string> = {
   private: "خاص بي",
   subject: "مشاركة بالقسم",
-  public: "عام لكل المعلمات",
+  public: "عام لكل المعلمين",
 };
 
 export const visibilityOptions = [
   { value: "private", label: "خاص بي فقط" },
-  { value: "subject", label: "مشاركة مع معلمات نفس القسم" },
-  { value: "public", label: "عام لكل المعلمات" },
+  { value: "subject", label: "مشاركة مع معلمي نفس القسم" },
+  { value: "public", label: "عام لكل المعلمين" },
 ] as const;
 
 export const extractYouTubeId = (url: string): string | null => {

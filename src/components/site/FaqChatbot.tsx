@@ -79,7 +79,7 @@ export const FaqChatbot = () => {
       setMessages([
         {
           role: "bot",
-          text: "مرحباً! اسأليني عن أي شيء يخص المنصة، أو اختاري موضوعاً 👇",
+          text: "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇",
         },
       ]);
     }
@@ -97,7 +97,7 @@ export const FaqChatbot = () => {
   const followUp = () => {
     const follow: ChatMessage = {
       role: "bot",
-      text: "هل تحتاجين شيئاً آخر؟ اختاري موضوعاً أو اكتبي سؤالك ✨",
+      text: "هل تحتاج شيئاً آخر؟ اختر موضوعاً أو اكتب سؤالك ✨",
     };
     pushBot(follow);
   };
@@ -133,7 +133,7 @@ export const FaqChatbot = () => {
     if (result.kind === "didyoumean") {
       pushBot({
         role: "bot",
-        text: "لم أكن متأكدة. هل تقصدين أحد هذه الأسئلة؟",
+        text: "لم أكن متأكداً. هل تقصد أحد هذه الأسئلة؟",
         suggestions: result.candidates.map((c) => c.faq),
         topic,
       });
@@ -155,7 +155,7 @@ export const FaqChatbot = () => {
       pushBot({
         role: "bot",
         text:
-          "لم أجد إجابة في قاعدة المعرفة. جرّبي أحد المواضيع أدناه أو اختاري سؤالاً مقترحاً.",
+          "لم أجد إجابة في قاعدة المعرفة. جرّب أحد المواضيع أدناه أو اختر سؤالاً مقترحاً.",
       });
     }
     followUp();
@@ -227,7 +227,7 @@ export const FaqChatbot = () => {
           {/* Topic menu — shown on first open so the user is never lost. */}
           {messages.length <= 1 && (
             <div className="px-4 pt-2 border-t border-border bg-card">
-              <p className="text-[11px] font-bold text-muted-foreground mb-2">اختاري موضوعاً:</p>
+              <p className="text-[11px] font-bold text-muted-foreground mb-2">اختر موضوعاً:</p>
               <div className="grid grid-cols-3 gap-1.5">
                 {GUIDED_TOPICS.map((t) =>
                   t.action.kind === "route" ? (
@@ -282,7 +282,7 @@ export const FaqChatbot = () => {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="اكتبي سؤالك..."
+              placeholder="اكتب سؤالك..."
               className="flex-1 px-3 py-2 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               dir="rtl"
             />

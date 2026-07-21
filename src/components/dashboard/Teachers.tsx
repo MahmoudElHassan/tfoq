@@ -108,7 +108,7 @@ export const Teachers = () => {
       const { error } = await supabase.from("teacher_subjects").insert(rows);
       if (error) { toast.error("تعذّر إضافة بعض التفويضات", { description: error.message }); setSaving(false); return; }
     }
-    toast.success("تم تحديث تفويضات المعلمة");
+    toast.success("تم تحديث تفويضات المعلم");
     setEditing(null);
     setSaving(false);
     load();
@@ -123,17 +123,17 @@ export const Teachers = () => {
       <div className="bg-card rounded-2xl p-4 sm:p-6 shadow-card border border-border/50">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
-            <h3 className="font-display text-xl font-bold">المعلمات والتفويض للأقسام</h3>
-            <p className="text-sm text-muted-foreground mt-1">فوّضي كل معلمة بقسم أو أكثر لتتمكن من إدارته</p>
+            <h3 className="font-display text-xl font-bold">المعلمون والتفويض للأقسام</h3>
+            <p className="text-sm text-muted-foreground mt-1">فوّض كل معلم بقسم أو أكثر ليتمكن من إدارته</p>
           </div>
-          <Badge variant="secondary" className="font-bold">{teachers.length} معلمة</Badge>
+          <Badge variant="secondary" className="font-bold">{teachers.length} معلم</Badge>
         </div>
 
         {teachers.length === 0 ? (
           <div className="text-center py-12">
             <ClipboardCheck className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground">لا توجد معلمات مسجَّلات بعد</p>
-            <p className="text-xs text-muted-foreground mt-1">يمكن تعيين دور «معلمة» من إدارة المستخدمين</p>
+            <p className="text-muted-foreground">لا يوجد معلمون مسجَّلون بعد</p>
+            <p className="text-xs text-muted-foreground mt-1">يمكن تعيين دور «معلم» من إدارة المستخدمين</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -150,7 +150,7 @@ export const Teachers = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-xs">
-                        {t.isActive ? "نشطة" : "معطّلة"}
+                        {t.isActive ? "نشط" : "معطّل"}
                       </Badge>
                       <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openAssign(t)}>
                         <BookCheck className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export const Teachers = () => {
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>تفويض الأقسام للمعلمة: {editing?.name}</DialogTitle>
+            <DialogTitle>تفويض الأقسام للمعلم: {editing?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2 max-h-[55vh] overflow-y-auto">
             {allSubjects.length === 0 ? (

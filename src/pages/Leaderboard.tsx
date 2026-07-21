@@ -31,7 +31,7 @@ const Leaderboard = () => {
 
       const list = (data ?? []) as Row[];
       if (list.length === 0) {
-        setWarning("لا توجد طالبات نشطات حالياً في النظام.");
+        setWarning("لا يوجد طلاب نشطون حالياً في النظام.");
       }
 
       setRows((prev) => {
@@ -102,10 +102,10 @@ const Leaderboard = () => {
             <Sparkles className="absolute -bottom-1 -left-2 w-4 h-4 text-accent animate-pulse" style={{ animationDelay: "0.5s" }} />
           </div>
           <h1 className="t-h1">لوحة الترتيب</h1>
-          <p className="t-body text-muted-foreground mt-2">أفضل 5 طالبات أداءً في منصة تفوّق</p>
+          <p className="t-body text-muted-foreground mt-2">أفضل 5 طلاب أداءً في منصة تفوّق</p>
           <div className="flex items-center justify-center gap-2 mt-3 text-sm text-muted-foreground">
             <Flame className="w-4 h-4 text-orange-500" />
-            <span>تنافسي · محدّث آنياً</span>
+            <span>تنافس · محدّث آنياً</span>
           </div>
         </div>
 
@@ -119,7 +119,7 @@ const Leaderboard = () => {
             <Trophy className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
             <p className="font-bold mb-2">{warning ? "بيانات غير متطابقة" : "لا توجد بيانات بعد"}</p>
             <p className="text-sm text-muted-foreground">
-              {warning ?? "لم يتم تسجيل أي طالبة في النظام بعد."}
+              {warning ?? "لم يتم تسجيل أي طالب في النظام بعد."}
             </p>
           </div>
         ) : (
@@ -163,7 +163,7 @@ const Leaderboard = () => {
                           <Icon className={`w-9 h-9 ${realIdx === 0 ? "text-amber-500 fill-amber-400" : realIdx === 1 ? "text-zinc-400 fill-zinc-300" : "text-orange-500 fill-orange-400"} drop-shadow-lg`} />
                         </div>
                         {isMe && (
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-bold shadow whitespace-nowrap">أنتِ</span>
+                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-bold shadow whitespace-nowrap">أنت</span>
                         )}
                       </div>
 
@@ -207,7 +207,7 @@ const Leaderboard = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold truncate">
-                          {r.full_name} {isMe && <span className="text-xs text-primary">(أنتِ)</span>}
+                          {r.full_name} {isMe && <span className="text-xs text-primary">(أنت)</span>}
                         </p>
                         {r.grade && <p className="text-xs text-muted-foreground mb-1">{r.grade}</p>}
                         {/* Progress bar */}
@@ -234,7 +234,7 @@ const Leaderboard = () => {
             <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto mt-8">
               <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border p-4 text-center">
                 <p className="text-2xl font-display font-black text-primary tabular-nums">{rows.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">متنافسات</p>
+                <p className="text-xs text-muted-foreground mt-1">متنافسون</p>
               </div>
               <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border p-4 text-center">
                 <p className="text-2xl font-display font-black text-accent tabular-nums">

@@ -44,7 +44,7 @@ const SidebarInner = ({ active, onChange }: SidebarProps) => {
             )}
             <div className="min-w-0">
               <h1 className="font-display text-xl font-extrabold leading-tight truncate">{brand.brand_name}</h1>
-              <p className="text-xs text-sidebar-foreground/70">ثانوية الطالبات</p>
+              <p className="text-xs text-sidebar-foreground/70">ثانوية الطلاب</p>
             </div>
           </div>
           <DarkModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
@@ -105,7 +105,7 @@ const SidebarInner = ({ active, onChange }: SidebarProps) => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate" dir="ltr">{user?.email ?? "—"}</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">مديرة النظام</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">مدير النظام</p>
           </div>
         </div>
       </div>

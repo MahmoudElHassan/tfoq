@@ -24,7 +24,7 @@ type AppUser = {
 };
 
 const roleLabels: Record<string, string> = {
-  admin: "مديرة", teacher: "معلمة", parent: "ولية أمر", student: "طالبة",
+  admin: "مدير", teacher: "معلم", parent: "ولي أمر", student: "طالب",
 };
 
 const roleColors: Record<string, string> = {
@@ -76,7 +76,7 @@ export const UsersManagement = ({ filterRole }: { filterRole?: string }) => {
       <div className="p-4 sm:p-5 border-b border-border/50 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحثي بالاسم أو البريد..." className="pr-10" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث بالاسم أو البريد..." className="pr-10" />
         </div>
         <Badge variant="secondary" className="font-bold shrink-0">{filtered.length} مستخدم</Badge>
       </div>
@@ -138,7 +138,7 @@ export const UsersManagement = ({ filterRole }: { filterRole?: string }) => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
                           <AlertDialogDescription>
-                            هل أنتِ متأكدة من حذف الحساب «{u.full_name}»؟ لا يمكن التراجع عن هذا الإجراء.
+                            هل أنت متأكد من حذف الحساب «{u.full_name}»؟ لا يمكن التراجع عن هذا الإجراء.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

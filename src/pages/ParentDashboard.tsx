@@ -73,7 +73,7 @@ const ParentDashboard = () => {
       .eq("parent_id", user.id);
     if (linksErr) {
       console.error("parent links error", linksErr);
-      toast.error("تعذّر تحميل قائمة الطالبات", { description: linksErr.message });
+      toast.error("تعذّر تحميل قائمة الطلاب", { description: linksErr.message });
       return;
     }
     const ids = (links ?? []).map((l) => l.student_id);
@@ -85,7 +85,7 @@ const ParentDashboard = () => {
       .in("id", ids);
     if (profErr) {
       console.error("profiles fetch error", profErr);
-      toast.error("تعذّر تحميل بيانات الطالبات", { description: profErr.message });
+      toast.error("تعذّر تحميل بيانات الطلاب", { description: profErr.message });
       return;
     }
 
@@ -104,8 +104,8 @@ const ParentDashboard = () => {
     const { data: stu } = await supabase
       .from("profiles").select("id, email").ilike("email", cleanEmail).maybeSingle();
     if (!stu) {
-      toast.error("لم نجد حساب طالبة بهذا البريد", {
-        description: "تأكدي من البريد ومن أن الطالبة قد سجّلت في المنصة كـ«طالبة».",
+      toast.error("لم نجد حساب طالب بهذا البريد", {
+        description: "تأكد من البريد ومن أن الطالب قد سجّل في المنصة كـ«طالب».",
       });
       return;
     }
@@ -114,12 +114,12 @@ const ParentDashboard = () => {
     });
     if (error) {
       const dup = error.code === "23505" || /duplicate|unique/i.test(error.message);
-      toast.error(dup ? "هذه الطالبة مرتبطة بحسابك مسبقاً" : "تعذّر الربط", {
+      toast.error(dup ? "هذا الطالب مرتبط بحسابك مسبقاً" : "تعذّر الربط", {
         description: dup ? undefined : error.message,
       });
       return;
     }
-    toast.success("تم ربط الطالبة بحسابك");
+    toast.success("تم ربط الطالب بحسابك");
     setEmail(""); setOpen(false); load();
   };
 
@@ -147,20 +147,20 @@ const ParentDashboard = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="t-h1">لوحة ولي الأمر</h1>
-            <p className="t-body text-muted-foreground mt-2">تابع/ي أداء أبنائك في المنصة</p>
+            <p className="t-body text-muted-foreground mt-2">تابع أداء أبنائك في المنصة</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-primary text-primary-foreground gap-2">
-                <Link2 className="w-4 h-4" /> ربط طالبة
+                <Link2 className="w-4 h-4" /> ربط طالب
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>ربط حساب طالبة</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>ربط حساب طالب</DialogTitle></DialogHeader>
               <div className="space-y-3 py-2">
-                <Label>البريد الإلكتروني للطالبة</Label>
+                <Label>البريد الإلكتروني للطالب</Label>
                 <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" dir="ltr" placeholder="student@email.com" />
-                <p className="text-xs text-muted-foreground">يجب أن تكون الطالبة قد سجّلت في المنصة سابقاً.</p>
+                <p className="text-xs text-muted-foreground">يجب أن يكون الطالب قد سجّل في المنصة سابقاً.</p>
               </div>
               <DialogFooter>
                 <Button onClick={linkChild} className="bg-gradient-primary text-primary-foreground">ربط</Button>
@@ -172,8 +172,8 @@ const ParentDashboard = () => {
         {children.length === 0 ? (
           <div className="bg-card rounded-2xl p-12 text-center border border-border shadow-card">
             <Users className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
-            <p className="font-display text-xl font-bold">لم تربط أي طالبة بعد</p>
-            <p className="text-muted-foreground mt-2">اضغط/ي على زر "ربط طالبة" للبدء</p>
+            <p className="font-display text-xl font-bold">لم تربط أي طالب بعد</p>
+            <p className="text-muted-foreground mt-2">اضغط على زر "ربط طالب" للبدء</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -203,7 +203,7 @@ const ParentDashboard = () => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>تأكيد فك الربط</AlertDialogTitle>
                           <AlertDialogDescription>
-                            هل أنتِ متأكدة من فك ربط «{c.full_name}» من حسابك؟ لن يحذف هذا حساب الطالبة، لكنه سيُزيلها من قائمة متابعتك.
+                            هل أنت متأكد من فك ربط «{c.full_name}» من حسابك؟ لن يحذف هذا حساب الطالب، لكنه سيُزيله من قائمة متابعتك.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

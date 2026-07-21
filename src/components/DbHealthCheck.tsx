@@ -16,7 +16,7 @@ export const DbHealthCheck = () => {
 
       if (!envOk) {
         toast.error("إعدادات قاعدة البيانات ناقصة", {
-          description: "تأكدي من وجود VITE_SUPABASE_URL و VITE_SUPABASE_PUBLISHABLE_KEY في ملف .env ثم أعيدي تشغيل npm run dev.",
+          description: "تأكد من وجود VITE_SUPABASE_URL و VITE_SUPABASE_PUBLISHABLE_KEY في ملف .env ثم أعد تشغيل npm run dev.",
           duration: 12000,
         });
         return;
