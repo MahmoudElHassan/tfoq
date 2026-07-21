@@ -157,7 +157,7 @@ export const FaqManager = () => {
           <MessageCircle className="w-6 h-6 text-primary" />
           <div>
             <h3 className="font-display text-lg font-extrabold">الأسئلة الشائعة</h3>
-            <p className="t-small text-muted-foreground">تُعرض في المساعد الذكي على الصفحة الرئيسية. التعديل متاح لمديرة النظام فقط.</p>
+            <p className="t-small text-muted-foreground">تُعرض في المساعد الذكي على الصفحة الرئيسية. التعديل متاح لمدير النظام فقط.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -172,14 +172,14 @@ export const FaqManager = () => {
       </div>
 
       <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-3 border border-border">
-        أضيفي <strong>٣–٥ كلمات مفتاحية</strong> لكل سؤال (مثال: «تسجيل، دخول، حساب جديد، اشتراك»).
+        أضف <strong>٣–٥ كلمات مفتاحية</strong> لكل سؤال (مثال: «تسجيل، دخول، حساب جديد، اشتراك»).
         الكلمات هي المرجع الأثقل في المطابقة، تليها نص السؤال، ثم الإجابة. هذا يساعد المساعد على
         فهم صياغات مختلفة مثل «كيف أسجّل؟» أو «بدي حساب».
       </p>
 
       {sorted.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-          لا توجد أسئلة شائعة بعد. اضغطي «سؤال جديد» لإضافة أول سؤال.
+          لا توجد أسئلة شائعة بعد. اضغط «سؤال جديد» لإضافة أول سؤال.
         </div>
       ) : (
         <div className="space-y-3">

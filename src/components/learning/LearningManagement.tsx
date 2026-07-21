@@ -47,7 +47,7 @@ export const LearningManagement = () => {
       <div className="bg-card rounded-2xl shadow-card border border-border p-10 text-center">
         <p className="font-display text-xl font-bold">لا يوجد تفويض</p>
         <p className="text-muted-foreground mt-2">
-          سيقوم مدير النظام بتفويضك لأقسام محددة لتتمكني من إدارة المحتوى التعليمي.
+          سيقوم مدير النظام بتفويضك لأقسام محددة لتتمكن من إدارة المحتوى التعليمي.
         </p>
       </div>
     );

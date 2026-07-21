@@ -90,7 +90,7 @@ export const Questions = () => {
                 <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">السؤال</th>
                 <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">المادة</th>
                 <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">المستوى</th>
-                <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">المعلمة</th>
+                <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">المعلم</th>
                 <th className="text-right px-6 py-4 text-xs font-bold text-muted-foreground uppercase">الحالة</th>
                 <th className="px-6 py-4"></th>
               </tr>

@@ -74,7 +74,7 @@ const Auth = () => {
         if (parsed.role === "teacher") {
           await supabase.auth.signOut();
           toast.success("تم استلام طلب التسجيل", {
-            description: "حسابكِ كمعلمة بانتظار تفعيل مديرة النظام. سيتم إشعاركِ عند التفعيل.",
+            description: "حسابك كمعلم بانتظار تفعيل مدير النظام. سيتم إشعارك عند التفعيل.",
           });
           setParams({});
           return;
@@ -104,7 +104,7 @@ const Auth = () => {
       const msg = err?.errors?.[0]?.message || err?.message || "حدث خطأ";
       const friendly = msg.includes("Invalid login") ? "بيانات الدخول غير صحيحة"
         : msg.includes("already registered") ? "هذا البريد مسجّل مسبقاً، حاول تسجيل الدخول"
-        : msg === "account_pending" ? "حسابكِ بانتظار تفعيل مديرة النظام"
+        : msg === "account_pending" ? "حسابك بانتظار تفعيل مدير النظام"
         : msg;
       toast.error("تعذّر إكمال العملية", { description: friendly });
     } finally {
@@ -137,7 +137,7 @@ const Auth = () => {
             {isSignup ? "إنشاء حساب جديد" : "تسجيل الدخول"}
           </h1>
           <p className="t-small text-muted-foreground text-center mb-7">
-            {isSignup ? "ابدئي رحلتك التعليمية الآن" : "أهلاً بعودتك إلى منصتك"}
+            {isSignup ? "ابدأ رحلتك التعليمية الآن" : "أهلاً بعودتك إلى منصتك"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -158,9 +158,9 @@ const Auth = () => {
                   <Select value={form.role} onValueChange={(v: any) => setForm({ ...form, role: v })}>
                     <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="student">طالبة</SelectItem>
+                      <SelectItem value="student">طالب</SelectItem>
                       <SelectItem value="parent">ولي أمر</SelectItem>
-                      <SelectItem value="teacher">معلمة</SelectItem>
+                      <SelectItem value="teacher">معلم</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -222,10 +222,10 @@ const Auth = () => {
           </form>
 
           <div className="text-center mt-6 text-sm text-muted-foreground">
-            {isSignup ? "لديك حساب بالفعل؟ " : "لا تملكين حساباً؟ "}
+            {isSignup ? "لديك حساب بالفعل؟ " : "لا تملك حساباً؟ "}
             <button type="button" onClick={() => setParams(isSignup ? {} : { mode: "signup" })}
               className="text-primary font-bold hover:underline">
-              {isSignup ? "سجّلي الدخول" : "أنشئي حساباً"}
+              {isSignup ? "سجّل الدخول" : "أنشئ حساباً"}
             </button>
           </div>
         </div>

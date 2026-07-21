@@ -167,7 +167,7 @@ const Memory = ({ items, contentKind }: { items: Item[]; contentKind: "mcq" | "c
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground text-center">طابقي بين البطاقات. تم العثور على {matched.size / 2} من {items.length}</p>
+       <p className="text-sm text-muted-foreground text-center">طابِق بين البطاقات. تم العثور على {matched.size / 2} من {items.length}</p>
       <div className={cn("grid gap-2", cols)}>
         {cards.map((c) => {
           const show = flipped.has(c.id) || matched.has(c.id);

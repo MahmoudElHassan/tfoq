@@ -117,7 +117,7 @@ const MockQuiz = () => {
     // نحتفل محلياً. التحقق من الإجابات يحدث بعد تحميل answerKey عبر RPC
     const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
     if (pct >= 50) confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-    toast.success(`أنهيتِ الاختبار! نسبتك ${pct}%`);
+    toast.success(`أنهيت الاختبار! نسبتك ${pct}%`);
   };
 
   const formatTime = (s: number) => {
@@ -175,7 +175,7 @@ const MockQuiz = () => {
             </div>
             <Button onClick={() => setStarted(true)} disabled={total === 0}
               className="mt-8 bg-gradient-primary text-primary-foreground h-14 px-10 text-base font-bold shadow-elegant gap-2">
-              ابدئي الاختبار الآن
+              ابدأ الاختبار الآن
             </Button>
             {total === 0 && <p className="text-xs text-muted-foreground mt-4">لا توجد أسئلة في هذا الاختبار بعد</p>}
             <Button variant="ghost" onClick={() => navigate("/student")} className="mt-3 gap-2">
@@ -220,7 +220,7 @@ const MockQuiz = () => {
             </div>
             <div className="flex flex-wrap justify-center gap-3 mt-8">
               <Button onClick={() => { setFinished(false); setStarted(false); setIdx(0); setAnswers({}); setRevealed({}); setSecondsLeft((template.duration_minutes ?? 30) * 60); }}
-                variant="outline" className="gap-2"><RotateCcw className="w-4 h-4" /> أعيدي المحاولة</Button>
+                variant="outline" className="gap-2"><RotateCcw className="w-4 h-4" /> أعد المحاولة</Button>
               <Button onClick={() => navigate("/student")} className="bg-gradient-primary text-primary-foreground gap-2">
                 <Home className="w-4 h-4" /> العودة للوحة
               </Button>
@@ -244,7 +244,7 @@ const MockQuiz = () => {
                         {ok ? <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
                         <div className="flex-1">
                           <p className="font-bold text-sm">س{i + 1}. {q.question_text}</p>
-                          <p className="text-xs text-muted-foreground mt-2">إجابتك: {sel ? `${sel.toUpperCase()} - ${(q as any)[`option_${sel}`]}` : "لم تجيبي"}</p>
+                          <p className="text-xs text-muted-foreground mt-2">إجابتك: {sel ? `${sel.toUpperCase()} - ${(q as any)[`option_${sel}`]}` : "لم تجب"}</p>
                           {correct && !ok && <p className="text-xs text-success mt-1">الصحيحة: {correct.toUpperCase()} - {(q as any)[`option_${correct}`]}</p>}
                           {q.explanation && <p className="text-xs mt-2 p-2 rounded bg-info/10 text-info"><Lightbulb className="w-3 h-3 inline ml-1" /> {q.explanation}</p>}
                         </div>
@@ -292,7 +292,7 @@ const MockQuiz = () => {
         <div className="bg-card rounded-3xl p-6 lg:p-8 border border-border shadow-elegant">
           <div className="flex items-center justify-between mb-4">
             <Badge className="bg-accent/15 text-accent-foreground border-0">{q.points} نقطة</Badge>
-            <p className="text-xs text-muted-foreground">أجبتِ على {answeredCount}/{total}</p>
+            <p className="text-xs text-muted-foreground">أجبت على {answeredCount}/{total}</p>
           </div>
           <h2 className="font-display text-xl font-bold leading-relaxed mb-6">{q.question_text}</h2>
 
@@ -360,7 +360,7 @@ const MockQuiz = () => {
 
         {/* Question navigator */}
         <div className="bg-card rounded-2xl p-4 border border-border">
-          <p className="text-xs text-muted-foreground mb-3">تنقّلي بين الأسئلة</p>
+          <p className="text-xs text-muted-foreground mb-3">تنقّل بين الأسئلة</p>
           <div className="flex flex-wrap gap-2">
             {questions.map((qq, i) => {
               const a = answers[qq.id];

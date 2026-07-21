@@ -123,7 +123,7 @@ export const GamesCenter = ({ subjects }: { subjects: Subject[] }) => {
       }));
       await supabase.from("learning_game_items").insert(payload);
     }
-    toast.success("تم استيراد اللعبة إلى مكتبتكِ");
+    toast.success("تم استيراد اللعبة إلى مكتبتك");
     load();
   };
 
@@ -135,7 +135,7 @@ export const GamesCenter = ({ subjects }: { subjects: Subject[] }) => {
   const save = async () => {
     if (!user) return;
     if (!form.title.trim() || !form.subject_id) { toast.error("الرجاء تعبئة العنوان والمادة"); return; }
-    if (items.length < 2) { toast.error("أضيفي عنصرين على الأقل"); return; }
+    if (items.length < 2) { toast.error("أضف عنصرين على الأقل"); return; }
     for (const it of items) {
       if (form.content_kind === "mcq" && (!it.question_text?.trim() || !it.option_a || !it.option_b)) {
         toast.error("الرجاء تعبئة جميع حقول الأسئلة"); return;
@@ -196,7 +196,7 @@ export const GamesCenter = ({ subjects }: { subjects: Subject[] }) => {
           <h3 className="font-display text-lg font-bold flex items-center gap-2">
             <Gamepad2 className="w-5 h-5 text-primary" /> مكتبة الألعاب التعليمية
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">العجلة الدوارة ولعبة الذاكرة - أنشئي أو استوردي من الزميلات</p>
+          <p className="text-sm text-muted-foreground mt-1">العجلة الدوارة ولعبة الذاكرة - أنشئ أو استورد من الزملاء</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button onClick={() => openNew("wheel")} disabled={subjects.length === 0} variant="outline" className="gap-2">

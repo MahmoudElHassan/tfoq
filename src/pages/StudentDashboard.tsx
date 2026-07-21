@@ -92,7 +92,7 @@ const StudentDashboard = () => {
           <div className="absolute -left-16 -bottom-16 w-48 h-48 bg-primary-foreground/10 rounded-full blur-2xl" />
           <div className="relative flex flex-wrap items-center justify-between gap-6">
             <div>
-              <p className="text-primary-foreground/80 flex items-center gap-2 t-small"><Sparkles className="w-4 h-4" /> أهلاً بكِ مجدداً</p>
+              <p className="text-primary-foreground/80 flex items-center gap-2 t-small"><Sparkles className="w-4 h-4" /> أهلاً بك مجدداً</p>
               <h1 className="t-h1 text-primary-foreground mt-2">{profile.full_name}</h1>
               {profile.grade && <p className="text-primary-foreground/80 mt-1 t-small">{profile.grade}</p>}
             </div>
@@ -182,7 +182,7 @@ const StudentDashboard = () => {
                     </div>
                     <Button onClick={() => navigate(`/mock-quiz/${t.id}`)}
                       className="mt-4 bg-gradient-primary text-primary-foreground gap-2 w-full">
-                      <Play className="w-4 h-4" /> ابدئي الاختبار
+                      <Play className="w-4 h-4" /> ابدأ الاختبار
                     </Button>
                   </div>
                 ))}
@@ -218,7 +218,7 @@ const StudentDashboard = () => {
                       {g.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{g.description}</p>}
                       <Button onClick={() => setPreviewGame(g)}
                         className="bg-gradient-primary text-primary-foreground gap-2 w-full">
-                        <Play className="w-4 h-4" /> العبي الآن
+                        <Play className="w-4 h-4" /> العب الآن
                       </Button>
                     </div>
                   );
@@ -265,7 +265,7 @@ const StudentDashboard = () => {
             <Target className="w-5 h-5 text-primary" /> آخر محاولاتك
           </h3>
           {recentAttempts.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">لا توجد محاولات بعد — ابدئي اختباراً!</p>
+            <p className="text-sm text-muted-foreground text-center py-8">لا توجد محاولات بعد — ابدأ اختباراً!</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {recentAttempts.map((a) => (
@@ -294,7 +294,7 @@ const EmptyState = ({ icon: Icon, text }: { icon: any; text: string }) => (
   <div className="bg-card rounded-2xl p-12 border border-border/50 text-center">
     <Icon className="w-14 h-14 text-muted-foreground/40 mx-auto mb-3" />
     <p className="font-display text-lg font-bold">{text}</p>
-    <p className="text-sm text-muted-foreground mt-1">سيظهر المحتوى هنا فور إضافته من المعلمة</p>
+    <p className="text-sm text-muted-foreground mt-1">سيظهر المحتوى هنا فور إضافته من المعلم</p>
   </div>
 );
 

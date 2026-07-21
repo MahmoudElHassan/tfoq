@@ -116,7 +116,7 @@ const TeacherDashboard = () => {
       const s = perStudent[id];
       return {
         id,
-        name: profileMap[id]?.full_name ?? "طالبة",
+        name: profileMap[id]?.full_name ?? "طالب",
         grade: profileMap[id]?.grade ?? "—",
         total: s.total,
         correct: s.correct,
@@ -139,7 +139,7 @@ const TeacherDashboard = () => {
       toast.error("الرجاء تعبئة الحقول الأساسية"); return;
     }
     if (!isAdmin && !mySubjects.some((s) => s.id === form.subject_id)) {
-      toast.error("لست مفوّضة لهذا القسم"); return;
+      toast.error("لست مفوّضاً لهذا القسم"); return;
     }
     const payload: any = { ...form, points: Number(form.points), created_by: user.id };
     const { error } = editing
@@ -171,8 +171,8 @@ const TeacherDashboard = () => {
       <div className="container py-10">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="t-h1">لوحة المعلمة</h1>
-            <p className="t-body text-muted-foreground mt-2">إدارة الأسئلة ومتابعة نتائج الطالبات في أقسامكِ</p>
+            <h1 className="t-h1">لوحة المعلم</h1>
+            <p className="t-body text-muted-foreground mt-2">إدارة الأسئلة ومتابعة نتائج الطلاب في أقسامك</p>
           </div>
           {!noAssignments && (
             <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(blank); } }}>
@@ -266,7 +266,7 @@ const TeacherDashboard = () => {
           <div className="bg-card rounded-2xl shadow-card border border-border p-12 text-center">
             <ShieldAlert className="w-14 h-14 text-warning mx-auto mb-4" />
             <p className="font-display text-xl font-bold">لا يوجد تفويض</p>
-            <p className="text-muted-foreground mt-2">سيقوم مدير النظام بتفويضك لأقسام محددة لتتمكني من إضافة الأسئلة ومتابعة الطالبات.</p>
+            <p className="text-muted-foreground mt-2">سيقوم مدير النظام بتفويضك لأقسام محددة لتتمكن من إضافة الأسئلة ومتابعة الطلاب.</p>
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
@@ -275,7 +275,7 @@ const TeacherDashboard = () => {
             <TabsList className="mb-6 flex-wrap h-auto">
               <TabsTrigger value="learning" className="gap-2"><GraduationCap className="w-4 h-4" />إدارة التعلّم</TabsTrigger>
               <TabsTrigger value="questions" className="gap-2"><BookOpen className="w-4 h-4" />بنك الأسئلة</TabsTrigger>
-              <TabsTrigger value="students" className="gap-2"><Users className="w-4 h-4" />نتائج الطالبات</TabsTrigger>
+              <TabsTrigger value="students" className="gap-2"><Users className="w-4 h-4" />نتائج الطلاب</TabsTrigger>
             </TabsList>
 
             <TabsContent value="learning">
@@ -288,7 +288,7 @@ const TeacherDashboard = () => {
                   <div className="p-12 text-center">
                     <BookOpen className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
                     <p className="font-display text-xl font-bold">لا توجد أسئلة بعد</p>
-                    <p className="text-muted-foreground mt-2">ابدئي بإضافة سؤالك الأول في أحد أقسامك المفوّضة</p>
+                    <p className="text-muted-foreground mt-2">ابدأ بإضافة سؤالك الأول في أحد أقسامك المفوّضة</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-border">
@@ -319,7 +319,7 @@ const TeacherDashboard = () => {
             <TabsContent value="students">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
                 <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm"><Users className="w-4 h-4" /> عدد الطالبات</div>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm"><Users className="w-4 h-4" /> عدد الطلاب</div>
                   <p className="font-display text-3xl font-extrabold mt-2">{studentResults.length.toLocaleString("ar")}</p>
                 </div>
                 <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
@@ -343,14 +343,14 @@ const TeacherDashboard = () => {
                   <div className="p-12 text-center">
                     <Users className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
                     <p className="font-display text-xl font-bold">لا توجد نتائج بعد</p>
-                    <p className="text-muted-foreground mt-2">ستظهر نتائج الطالبات هنا فور بدئهن بحل أسئلة أقسامك</p>
+                    <p className="text-muted-foreground mt-2">ستظهر نتائج الطلاب هنا فور بدئهم بحل أسئلة أقسامك</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[680px] text-sm">
                       <thead className="bg-secondary/40 text-muted-foreground">
                         <tr>
-                          <th className="text-right p-4 font-semibold">الطالبة</th>
+                          <th className="text-right p-4 font-semibold">الطالب</th>
                           <th className="text-right p-4 font-semibold">الصف</th>
                           <th className="text-right p-4 font-semibold">المحاولات</th>
                           <th className="text-right p-4 font-semibold">الصحيحة</th>

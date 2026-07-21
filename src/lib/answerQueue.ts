@@ -88,7 +88,7 @@ const submitOnce = async (a: PendingAnswer): Promise<SubmitAttemptResult | null>
 };
 
 /**
- * يحفظ إجابة الطالبة مع كل الاحتياطات.
+ * يحفظ إجابة الطالب مع كل الاحتياطات.
  * - يضع نسخة في localStorage فوراً
  * - يحاول الإرسال مع backoff عبر submit_quiz_attempt (آمن + متكرّر-آمن)
  * - عند الفشل يبقى في القائمة للمزامنة لاحقاً

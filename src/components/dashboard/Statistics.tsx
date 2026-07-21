@@ -122,7 +122,7 @@ export const Statistics = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatCard label="متوسط النقاط في الفترة" value={avgScore.toString()} icon={Target} hint="نسبة الإجابات الصحيحة %" tone="primary" />
-        <StatCard label="الطالبات المرتبطات" value={linkedStudents.toLocaleString("ar")} icon={LinkIcon} hint={`${linkedPct}% من إجمالي الطالبات`} tone="gold" />
+        <StatCard label="الطلاب المرتبطون" value={linkedStudents.toLocaleString("ar")} icon={LinkIcon} hint={`${linkedPct}% من إجمالي الطلاب`} tone="gold" />
         <StatCard label="تسجيلات الفترة" value={periodRegistrations.toLocaleString("ar")} icon={CalendarDays} hint={periodLabels[period]} tone="info" />
         <StatCard label="محاولات الاختبار" value={periodAttempts.toLocaleString("ar")} icon={TrendingUp} hint="عدد المحاولات في الفترة" tone="success" />
       </div>

@@ -114,7 +114,7 @@ export const QuizTemplatesCenter = ({ subjects }: { subjects: Subject[] }) => {
   const save = async () => {
     if (!user) return;
     if (!form.title.trim() || !form.subject_id) { toast.error("الرجاء تعبئة العنوان والمادة"); return; }
-    if (questions.length === 0) { toast.error("أضيفي سؤالاً واحداً على الأقل"); return; }
+    if (questions.length === 0) { toast.error("أضف سؤالاً واحداً على الأقل"); return; }
     for (const q of questions) {
       if (!q.question_text.trim() || !q.option_a || !q.option_b || !q.option_c || !q.option_d) {
         toast.error("الرجاء تعبئة جميع حقول الأسئلة"); return;
@@ -172,7 +172,7 @@ export const QuizTemplatesCenter = ({ subjects }: { subjects: Subject[] }) => {
           <h3 className="font-display text-lg font-bold flex items-center gap-2">
             <ClipboardList className="w-5 h-5 text-primary" /> مكتبة نماذج الاختبارات
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">أنشئي نماذج اختبار جاهزة بأسئلة اختيار من متعدد</p>
+          <p className="text-sm text-muted-foreground mt-1">أنشئ نماذج اختبار جاهزة بأسئلة اختيار من متعدد</p>
         </div>
         <Button onClick={openNew} disabled={subjects.length === 0} className="bg-gradient-primary text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> نموذج جديد
@@ -185,7 +185,7 @@ export const QuizTemplatesCenter = ({ subjects }: { subjects: Subject[] }) => {
         <div className="bg-card rounded-2xl p-12 border border-border/50 text-center">
           <ClipboardList className="w-14 h-14 text-muted-foreground/40 mx-auto mb-3" />
           <p className="font-display text-lg font-bold">لا توجد نماذج بعد</p>
-          <p className="text-sm text-muted-foreground mt-1">ابدئي بإنشاء أول نموذج اختبار محاكي</p>
+          <p className="text-sm text-muted-foreground mt-1">ابدأ بإنشاء أول نموذج اختبار محاكي</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -20,14 +20,14 @@ type Stats = {
   attemptsLastMinute: number;
   attemptsLast5Min: number;
   attemptsLastHour: number;
-  activeStudents: number; // طالبات أرسلن إجابة في آخر 5 دقائق
+  activeStudents: number; // طلاب أرسلوا إجابة في آخر 5 دقائق
   correctRate: number; // % إجابات صحيحة في آخر ساعة
   avgPointsPerAttempt: number;
 };
 
 // تحديث تكيّفي: سريع وقت النشاط، بطيء وقت الهدوء (توفير bandwidth)
-const REFRESH_ACTIVE_MS = 15000;   // 15ث عند وجود طالبات نشطات
-const REFRESH_LOW_MS = 45000;      // 45ث عند نشاط خفيف (<10 طالبات)
+const REFRESH_ACTIVE_MS = 15000;   // 15ث عند وجود طلاب نشطين
+const REFRESH_LOW_MS = 45000;      // 45ث عند نشاط خفيف (<10 طلاب)
 const REFRESH_IDLE_MS = 120000;    // دقيقتان عند الهدوء التام
 const RECENT_LIMIT = 100;          // سقف صفوف المعروض في البث اللحظي
 const BATCH_FLUSH_MS = 2000;       // تجميع إدخالات postgres_changes لـ 2 ث قبل تطبيقها
@@ -286,7 +286,7 @@ const AdminLiveMonitor = () => {
     healthLevel === "danger"
       ? "حمل عالٍ — يُنصح بترقية الـ Cloud instance"
       : healthLevel === "warn"
-      ? "حمل متوسط — راقبي الأداء"
+       ? "حمل متوسط — راقب الأداء"
       : healthLevel === "ok"
       ? "النظام يعمل بسلاسة"
       : "—";
@@ -332,7 +332,7 @@ const AdminLiveMonitor = () => {
             <p className="font-display text-lg font-bold">{healthLabel}</p>
             <p className="text-xs opacity-80 mt-1">
               عتبات التحذير: {HEALTH_THRESHOLDS.attemptsPerMinute.warn} إجابة/دقيقة أو{" "}
-              {HEALTH_THRESHOLDS.activeStudents.warn} طالبة نشطة
+              {HEALTH_THRESHOLDS.activeStudents.warn} طالب نشط
             </p>
           </div>
         </div>
@@ -359,7 +359,7 @@ const AdminLiveMonitor = () => {
           />
           <StatCard
             icon={<Users className="w-5 h-5" />}
-            label="طالبات نشطات"
+            label="طلاب نشطون"
             value={stats?.activeStudents ?? "—"}
             tone="accent"
           />
@@ -415,8 +415,8 @@ const AdminLiveMonitor = () => {
           <ul className="list-disc pr-5 space-y-1">
             <li>الإحصاءات تعتمد على عدّ الصفوف فقط (count) لتقليل استهلاك الـ bandwidth.</li>
             <li>التحديث كل 15 ثانية بدلاً من 5 لتقليل الحمل بـ 66%.</li>
-            <li>"طالبات نشطات" = طالبات أرسلن إجابة في آخر 5 دقائق.</li>
-            <li>عند تجاوز 500 إجابة/دقيقة، فكّري في ترقية حجم Lovable Cloud instance.</li>
+            <li>"طلاب نشطون" = طلاب أرسلوا إجابة في آخر 5 دقائق.</li>
+            <li>عند تجاوز 500 إجابة/دقيقة، فكّر في ترقية حجم Lovable Cloud instance.</li>
           </ul>
         </div>
       </div>

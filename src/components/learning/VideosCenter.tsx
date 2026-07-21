@@ -116,7 +116,7 @@ export const VideosCenter = ({ subjects }: { subjects: Subject[] }) => {
           <h3 className="font-display text-lg font-bold flex items-center gap-2">
             <Video className="w-5 h-5 text-primary" /> مكتبة الفيديوهات
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">روابط يوتيوب مع تتبع المشاهدات لإحصائيات المعلمة</p>
+          <p className="text-sm text-muted-foreground mt-1">روابط يوتيوب مع تتبع المشاهدات لإحصائيات المعلم</p>
         </div>
         <Button onClick={openNew} disabled={subjects.length === 0} className="bg-gradient-primary text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> فيديو جديد
@@ -154,7 +154,7 @@ export const VideosCenter = ({ subjects }: { subjects: Subject[] }) => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
                     <span>{v.views_count} مشاهدة</span>
                     <span>•</span>
-                    <span className="text-success font-semibold">{v.half_views} أكملن النصف</span>
+                    <span className="text-success font-semibold">{v.half_views} أكملوا النصف</span>
                   </div>
                   {canEdit && (
                     <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">

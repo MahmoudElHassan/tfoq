@@ -11,10 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-students.jpg";
 
 const features = [
-  { icon: Gauge, title: "عجلة الاختبارات", desc: "اختبري مهاراتك عبر عجلة تفاعلية تختار أسئلة عشوائية من بنك الأسئلة", tone: "primary" },
-  { icon: Trophy, title: "نظام النقاط والترتيب", desc: "اجمعي النقاط من الإجابات الصحيحة وتنافسي مع زميلاتك على لوحة الترتيب", tone: "gold" },
-  { icon: BookOpen, title: "بنك أسئلة شامل", desc: "أسئلة تحصيلي علمي وأدبي + قدرات كمي ولفظي معتمدة من معلماتك", tone: "info" },
-  { icon: Users, title: "حساب ولي الأمر", desc: "تابع/ي أداء الطالبة، نقاطها وترتيبها بشكل مستمر ومفصّل", tone: "success" },
+  { icon: Gauge, title: "عجلة الاختبارات", desc: "اختبر مهاراتك عبر عجلة تفاعلية تختار أسئلة عشوائية من بنك الأسئلة", tone: "primary" },
+  { icon: Trophy, title: "نظام النقاط والترتيب", desc: "اجمع النقاط من الإجابات الصحيحة وتنافس مع زملائك على لوحة الترتيب", tone: "gold" },
+  { icon: BookOpen, title: "بنك أسئلة شامل", desc: "أسئلة تحصيلي علمي وأدبي + قدرات كمي ولفظي معتمدة من معلميك", tone: "info" },
+  { icon: Users, title: "حساب ولي الأمر", desc: "تابع أداء الطالب، نقاطه وترتيبه بشكل مستمر ومفصّل", tone: "success" },
 ];
 
 // Hero fallbacks are intentionally NEUTRAL slate — they are shown only while
@@ -25,36 +25,36 @@ const HERO_NEUTRAL_FROM = "#64748B"; // slate-500
 const HERO_NEUTRAL_TO = "#94A3B8";   // slate-400
 
 const heroDefaults = {
-  badge: "منصة تعليمية معتمدة لطالبات الثانوية",
-  title_line1: "تفوّقي في",
+  badge: "منصة تعليمية معتمدة لطلاب الثانوية",
+  title_line1: "تفوّق في",
   title_line2: "التحصيلي والقدرات",
   description: "منصة تفاعلية متكاملة تساعدك على إتقان مهارات اختبارَي التحصيلي والقدرات عبر عجلة أسئلة ذكية، نظام نقاط، ولوحة ترتيب محفّزة.",
-  cta_primary: "ابدئي رحلتك الآن",
-  cta_secondary: "استكشفي المميزات",
+  cta_primary: "ابدأ رحلتك الآن",
+  cta_secondary: "استكشف المميزات",
   image_url: "",
   gradient_from: HERO_NEUTRAL_FROM,
   gradient_to: HERO_NEUTRAL_TO,
   gradient_angle: 135,
   stats: [
-    { v: "1,200+", l: "طالبة مسجلة" },
+    { v: "1,200+", l: "طالب مسجل" },
     { v: "5,000+", l: "سؤال تفاعلي" },
-    { v: "60+", l: "معلمة" },
-    { v: "98%", l: "رضا الطالبات" },
+    { v: "60+", l: "معلم" },
+    { v: "98%", l: "رضا الطلاب" },
   ],
 };
 
 const featuresDefaults = {
   eyebrow: "مميزات المنصة",
-  title: "كل ما تحتاجينه للتفوّق في مكان واحد",
-  subtitle: "أدوات تعليمية حديثة مصممة خصيصاً لطالبات المرحلة الثانوية",
+  title: "كل ما تحتاجه للتفوّق في مكان واحد",
+  subtitle: "أدوات تعليمية حديثة مصممة خصيصاً لطلاب المرحلة الثانوية",
 };
 
 const aboutDefaults = {
   eyebrow: "من نحن",
   title: "منصة تفوّق التعليمية",
-  body: "منصة تفوّق هي منصة تعليمية تفاعلية مخصصة لطالبات الثانوية الرابعة بصبيا، تهدف إلى تعزيز مهارات الطالبات في اختبارات التحصيلي والقدرات.",
-  mission: "تمكين الطالبات من تحقيق أعلى الدرجات في اختبارات القياس عبر أدوات تعليمية حديثة.",
-  vision: "أن نكون المنصة الأولى في تأهيل طالبات الثانوية لاختبارات التحصيلي والقدرات.",
+  body: "منصة تفوّق هي منصة تعليمية تفاعلية مخصصة لطلاب الثانوية الرابعة بصبيا، تهدف إلى تعزيز مهارات الطلاب في اختبارات التحصيلي والقدرات.",
+  mission: "تمكين الطلاب من تحقيق أعلى الدرجات في اختبارات القياس عبر أدوات تعليمية حديثة.",
+  vision: "أن نكون المنصة الأولى في تأهيل طلاب الثانوية لاختبارات التحصيلي والقدرات.",
 };
 
 const Landing = () => {
@@ -74,10 +74,10 @@ const Landing = () => {
           supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "teacher"),
         ]);
         setLiveStats([
-          { v: `${students.count ?? 0}+`, l: "طالبة مسجلة" },
+          { v: `${students.count ?? 0}+`, l: "طالب مسجل" },
           { v: `${questions.count ?? 0}+`, l: "سؤال تفاعلي" },
-          { v: `${teachers.count ?? 0}+`, l: "معلمة" },
-          { v: "100%", l: "رضا الطالبات" },
+          { v: `${teachers.count ?? 0}+`, l: "معلم" },
+          { v: "100%", l: "رضا الطلاب" },
         ]);
       } catch {
         // ignore — fallback to hero.stats
@@ -155,7 +155,7 @@ const Landing = () => {
               <div className="absolute -inset-3 sm:-inset-4 bg-gradient-primary opacity-20 blur-2xl rounded-3xl" />
               <img
                 src={heroImage}
-                alt="طالبات يتعلمن في منصة تفوق"
+                alt="طلاب يتعلمون في منصة تفوق"
                 width={1280}
                 height={896}
                 loading="eager"
@@ -236,9 +236,9 @@ const Landing = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
             {[
-              { n: "١", t: "أنشئي حسابك", d: "سجّلي ببريدك الإلكتروني واختاري دورك (طالبة / ولية أمر / معلمة)", icon: ShieldCheck },
-              { n: "٢", t: "ابدئي الاختبار", d: "أديري عجلة الأسئلة واختاري المادة وأجيبي عن الأسئلة", icon: Target },
-              { n: "٣", t: "اجمعي النقاط", d: "تابعي ترتيبك في لوحة الشرف وتنافسي مع زميلاتك", icon: Award },
+              { n: "١", t: "أنشئ حسابك", d: "سجّل ببريدك الإلكتروني واختر دورك (طالب / ولي أمر / معلم)", icon: ShieldCheck },
+              { n: "٢", t: "ابدأ الاختبار", d: "أدر عجلة الأسئلة واختر المادة وأجب عن الأسئلة", icon: Target },
+              { n: "٣", t: "اجمع النقاط", d: "تابع ترتيبك في لوحة الشرف وتنافس مع زملائك", icon: Award },
             ].map((step, i) => {
               const Icon = step.icon;
               return (
@@ -267,14 +267,14 @@ const Landing = () => {
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 80%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
             <div className="relative">
               <h2 className="t-h1 text-primary-foreground">
-                مستعدة لتحقيق أعلى الدرجات؟
+                مستعد لتحقيق أعلى الدرجات؟
               </h2>
               <p className="t-body text-primary-foreground/85 mt-3 sm:mt-4 max-w-xl mx-auto">
-                انضمي اليوم إلى مئات الطالبات اللواتي يحضّرن لاختباراتهن بثقة عبر منصة تفوّق
+                انضم اليوم إلى مئات الطلاب الذين يحضّرون لاختباراتهم بثقة عبر منصة تفوّق
               </p>
               <Link to="/auth?mode=signup">
                 <Button size="lg" className="mt-6 sm:mt-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-elegant h-12 sm:h-14 px-7 sm:px-10 text-sm sm:text-base font-bold">
-                  سجّلي مجاناً الآن
+                  سجّل مجاناً الآن
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 </Button>
               </Link>
