@@ -21,8 +21,8 @@ const items = [
   { id: "content", label: "تحرير الصفحة الرئيسية", icon: FileEdit },
   { id: "faq", label: "الأسئلة الشائعة", icon: MessageCircle },
   { id: "questions", label: "إدارة التعلّم", icon: BookOpenCheck },
-  { id: "teachers", label: "المعلمات والتفويض", icon: UserCog },
-  { id: "students", label: "الطالبات", icon: GraduationCap },
+  { id: "teachers", label: "المعلمين والتفويض", icon: UserCog },
+  { id: "students", label: "الطلاب", icon: GraduationCap },
   { id: "parents", label: "أولياء الأمور", icon: Users },
 ];
 
