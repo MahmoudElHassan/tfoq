@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award, Target, Compass, Eye } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
-import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
-import { useSiteContent } from "@/hooks/useSiteContent";
+import { useLandingSiteContent } from "@/hooks/useLandingSiteContent";
 import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-students.jpg";
+
+const FaqChatbot = lazy(() =>
+  import("@/components/site/FaqChatbot").then((m) => ({ default: m.FaqChatbot }))
+);
 
 const features = [
   { icon: Gauge, title: "عجلة الاختبارات", desc: "اختبر مهاراتك عبر عجلة تفاعلية تختار أسئلة عشوائية من بنك الأسئلة", tone: "primary" },
@@ -58,32 +61,42 @@ const aboutDefaults = {
 };
 
 const Landing = () => {
-  const { content: hero } = useSiteContent("hero", heroDefaults);
-  const { content: feat } = useSiteContent("features_section", featuresDefaults);
-  const { content: about } = useSiteContent("about", aboutDefaults);
+  const { hero, features: feat, about } = useLandingSiteContent(
+    heroDefaults,
+    featuresDefaults,
+    aboutDefaults,
+  );
   const { loading: brandLoading } = useBranding();
   const [liveStats, setLiveStats] = useState<{ v: string; l: string }[] | null>(null);
 
-  // Fetch real counts as a guaranteed fallback so stats are NEVER empty
+  // Defer live stats so they do not block first Landing paint.
+  // Runs only after branding finished loading, scheduled on the next macrotask.
   useEffect(() => {
-    (async () => {
-      try {
-        const [students, questions, teachers] = await Promise.all([
-          supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "student"),
-          supabase.from("questions").select("id", { count: "exact", head: true }),
-          supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "teacher"),
-        ]);
-        setLiveStats([
-          { v: `${students.count ?? 0}+`, l: "طالب مسجل" },
-          { v: `${questions.count ?? 0}+`, l: "سؤال تفاعلي" },
-          { v: `${teachers.count ?? 0}+`, l: "معلم" },
-          { v: "100%", l: "رضا الطلاب" },
-        ]);
-      } catch {
-        // ignore — fallback to hero.stats
-      }
-    })();
-  }, []);
+    if (brandLoading) return;
+    let cancelled = false;
+    const run = () => {
+      (async () => {
+        try {
+          const [students, questions, teachers] = await Promise.all([
+            supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "student"),
+            supabase.from("questions").select("id", { count: "exact", head: true }),
+            supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "teacher"),
+          ]);
+          if (cancelled) return;
+          setLiveStats([
+            { v: `${students.count ?? 0}+`, l: "طالب مسجل" },
+            { v: `${questions.count ?? 0}+`, l: "سؤال تفاعلي" },
+            { v: `${teachers.count ?? 0}+`, l: "معلم" },
+            { v: "100%", l: "رضا الطلاب" },
+          ]);
+        } catch {
+          // ignore — fallback to hero.stats
+        }
+      })();
+    };
+    const t = window.setTimeout(run, 0);
+    return () => { cancelled = true; window.clearTimeout(t); };
+  }, [brandLoading]);
 
   // Body stays hidden behind the visibility gate until BrandThemeProvider
   // reveals it; returning null here too avoids a stray Landing paint if the
@@ -284,7 +297,9 @@ const Landing = () => {
       </section>
 
       <SiteFooter />
-      <FaqChatbot />
+      <Suspense fallback={null}>
+        <FaqChatbot />
+      </Suspense>
     </div>
   );
 };
