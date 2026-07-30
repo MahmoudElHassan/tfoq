@@ -19,6 +19,7 @@ dist-ssr
 
 # Local Supabase CLI / Cursor — do not ship to GitHub or Vercel
 .cursor/
+docs/
 supabase/.branches/
 supabase/.temp/
 
