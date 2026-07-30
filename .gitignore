@@ -17,6 +17,11 @@ dist-ssr
 .env.*
 !.env.example
 
+# Local Supabase CLI / Cursor — do not ship to GitHub or Vercel
+.cursor/
+supabase/.branches/
+supabase/.temp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

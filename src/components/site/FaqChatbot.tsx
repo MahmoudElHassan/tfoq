@@ -11,12 +11,59 @@ import {
   type GuidedTopic,
 } from "@/lib/faqMatcher";
 
+type AssistResponse =
+  | { ok: true; reply: string; route: string | null; routeLabel: string | null; remaining: number }
+  | { ok: false; code: string; message: string; remaining?: number; retryAfterSeconds?: number };
+
 type ChatMessage =
   | { role: "user"; text: string }
-  | { role: "bot"; text: string; suggestions?: FaqWithKeywords[]; topic?: GuidedTopic }
-  | { role: "bot"; text: string; matched?: FaqWithKeywords; topic?: GuidedTopic };
+  | {
+      role: "bot";
+      text: string;
+      suggestions?: FaqWithKeywords[];
+      topic?: GuidedTopic;
+      matched?: FaqWithKeywords;
+      route?: string | null;
+      routeLabel?: string | null;
+      remaining?: number;
+    };
 
-export const FaqChatbot = () => {
+type FaqChatbotProps = {
+  mode?: "public" | "student";
+};
+
+const WELCOME_PUBLIC = "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇";
+const WELCOME_STUDENT = "مرحباً! أنا مساعدك في المنصة — اسأل عن الاختبارات أو النقاط أو أي شيء 👇";
+
+function buildAssistHistory(messages: ChatMessage[]) {
+  return messages
+    .filter((m) => m.role === "user" || m.role === "bot")
+    .slice(-6)
+    .map((m) => ({
+      role: m.role === "user" ? ("user" as const) : ("assistant" as const),
+      content: m.text.trim().slice(0, 1000),
+    }))
+    .filter((m) => m.content.length > 0);
+}
+
+function nomatchFallback(topic: GuidedTopic | null) {
+  if (topic) {
+    return {
+      role: "bot" as const,
+      text:
+        topic.action.kind === "route"
+          ? `لم أجد إجابة دقيقة في قاعدة المعرفة، لكن يبدو أن سؤالك عن «${topic.label}». يمكنني أن أوجّهك.`
+          : topic.action.label,
+      topic,
+    };
+  }
+  return {
+    role: "bot" as const,
+    text: "لم أجد إجابة في قاعدة المعرفة. جرّب أحد المواضيع أدناه أو اختر سؤالاً مقترحاً.",
+  };
+}
+
+export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -26,8 +73,6 @@ export const FaqChatbot = () => {
 
   useEffect(() => {
     (async () => {
-      // Pull active FAQs + keywords. Fall back without keywords / bundled
-      // FAQs if migrations are partially applied so the guide UI still works.
       let data: FaqWithKeywords[] | null = null;
       let error: { message: string; code?: string } | null = null;
       {
@@ -70,8 +115,6 @@ export const FaqChatbot = () => {
     })();
   }, []);
 
-  // Welcome + topic menu when the panel first opens. We use a ref so the
-  // effect only fires once per open transition without disabling rules.
   const welcomedRef = useRef(false);
   useEffect(() => {
     if (open && !welcomedRef.current) {
@@ -79,12 +122,12 @@ export const FaqChatbot = () => {
       setMessages([
         {
           role: "bot",
-          text: "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇",
+          text: mode === "student" ? WELCOME_STUDENT : WELCOME_PUBLIC,
         },
       ]);
     }
     if (!open) welcomedRef.current = false;
-  }, [open]);
+  }, [open, mode]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -95,71 +138,133 @@ export const FaqChatbot = () => {
   const pushBot = (m: ChatMessage) => setMessages((prev) => [...prev, m]);
 
   const followUp = () => {
-    const follow: ChatMessage = {
+    pushBot({
       role: "bot",
       text: "هل تحتاج شيئاً آخر؟ اختر موضوعاً أو اكتب سؤالك ✨",
-    };
-    pushBot(follow);
+    });
   };
 
-  /**
-   * Combined matcher:
-   *   1. Try FAQ match (high / didyoumean / no match).
-   *   2. On no match, fall back to topic routing.
-   *   3. If still nothing, surface a guided reply linking to the topic
-   *      menu so the user can self-serve.
-   */
-  const handleAsk = (rawText: string) => {
+  const invokeAssist = async (text: string, priorMessages: ChatMessage[]): Promise<AssistResponse | null> => {
+    const body = {
+      message: text,
+      history: buildAssistHistory(priorMessages),
+    };
+
+    // Optional local override for `supabase functions serve` during hybrid local
+    // testing. Production / hosted builds must leave this unset so the client
+    // calls the deployed cloud function via supabase.functions.invoke.
+    const localFunctionsUrl = (import.meta.env.VITE_SUPABASE_FUNCTIONS_URL as string | undefined)?.replace(
+      /\/$/,
+      "",
+    );
+
+    if (localFunctionsUrl) {
+      try {
+        const localAnon =
+          (import.meta.env.VITE_SUPABASE_FUNCTIONS_ANON_KEY as string | undefined) ||
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
+        const { data: sessionData } = await supabase.auth.getSession();
+        // Prefer the signed-in cloud session so quotas key by user:<id>, not shared guest IP.
+        const token = sessionData.session?.access_token ?? localAnon;
+        const res = await fetch(`${localFunctionsUrl}/faq-assist`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            apikey: localAnon,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => null);
+        if (data && typeof data === "object" && "ok" in data) return data as AssistResponse;
+        return null;
+      } catch {
+        return null;
+      }
+    }
+
+    // Cloud path: supabase-js attaches the current user JWT automatically,
+    // so quotas are isolated per authenticated account (20/day) or guest IP (5/day).
+    const { data, error } = await supabase.functions.invoke("faq-assist", { body });
+    if (data && typeof data === "object" && "ok" in data) return data as AssistResponse;
+
+    // Non-2xx responses (quota / AI_UNAVAILABLE) often land in error.context.
+    const ctx = (error as { context?: Response } | null)?.context;
+    if (ctx) {
+      try {
+        const parsed = await ctx.json();
+        if (parsed && typeof parsed === "object" && "ok" in parsed) {
+          return parsed as AssistResponse;
+        }
+      } catch {
+        // ignore parse failures
+      }
+    }
+    return null;
+  };
+
+  const handleAsk = async (rawText: string) => {
     const text = rawText.trim();
-    if (!text) return;
+    if (!text || loading) return;
+
     setLoading(true);
+    const priorMessages = messages;
     setMessages((prev) => [...prev, { role: "user", text }]);
     setInput("");
 
-    const result = matchFaq(text, faqs);
-    const topic = routeTopic(text);
+    try {
+      const result = matchFaq(text, faqs);
+      const topic = routeTopic(text);
 
-    if (result.kind === "answer") {
-      pushBot({
-        role: "bot",
-        text: result.faq.answer,
-        matched: result.faq,
-        topic,
-      });
+      if (result.kind === "answer") {
+        pushBot({
+          role: "bot",
+          text: result.faq.answer,
+          matched: result.faq,
+          topic,
+        });
+        followUp();
+        return;
+      }
+
+      if (result.kind === "didyoumean") {
+        pushBot({
+          role: "bot",
+          text: "لم أكن متأكداً. هل تقصد أحد هذه الأسئلة؟",
+          suggestions: result.candidates.map((c) => c.faq),
+          topic,
+        });
+        return;
+      }
+
+      const assist = await invokeAssist(text, priorMessages);
+
+      if (assist?.ok) {
+        pushBot({
+          role: "bot",
+          text: assist.reply,
+          route: assist.route,
+          routeLabel: assist.routeLabel,
+          remaining: assist.remaining,
+          topic: topic ?? undefined,
+        });
+        followUp();
+        return;
+      }
+
+      if (assist && !assist.ok) {
+        if (assist.message) {
+          pushBot({ role: "bot", text: assist.message });
+          followUp();
+          return;
+        }
+      }
+
+      pushBot(nomatchFallback(topic));
       followUp();
+    } finally {
       setLoading(false);
-      return;
     }
-    if (result.kind === "didyoumean") {
-      pushBot({
-        role: "bot",
-        text: "لم أكن متأكداً. هل تقصد أحد هذه الأسئلة؟",
-        suggestions: result.candidates.map((c) => c.faq),
-        topic,
-      });
-      setLoading(false);
-      return;
-    }
-
-    // nomatch
-    if (topic) {
-      pushBot({
-        role: "bot",
-        text:
-          topic.action.kind === "route"
-            ? `لم أجد إجابة دقيقة في قاعدة المعرفة، لكن يبدو أن سؤالك عن «${topic.label}». يمكنني أن أوجّهك.`
-            : topic.action.label,
-        topic,
-      });
-    } else {
-      pushBot({
-        role: "bot",
-        text:
-          "لم أجد إجابة في قاعدة المعرفة. جرّب أحد المواضيع أدناه أو اختر سؤالاً مقترحاً.",
-      });
-    }
-    followUp();
-    setLoading(false);
   };
 
   const handleSuggestionClick = (faq: FaqWithKeywords) => {
@@ -174,8 +279,8 @@ export const FaqChatbot = () => {
   };
 
   const handleTopicClick = (t: GuidedTopic) => {
-    if (t.action.kind === "route") return; // rendered as a Link, not an action
-    handleAsk(t.action.query);
+    if (t.action.kind === "route") return;
+    void handleAsk(t.action.query);
   };
 
   return (
@@ -203,7 +308,9 @@ export const FaqChatbot = () => {
               <Sparkles className="w-5 h-5" />
               <div>
                 <p className="font-display font-extrabold leading-tight">المساعد الذكي</p>
-                <p className="text-[11px] opacity-80">قاعدة معرفة الأسئلة الشائعة</p>
+                <p className="text-[11px] opacity-80">
+                  {mode === "student" ? "مساعدك في المنصة" : "قاعدة معرفة الأسئلة الشائعة"}
+                </p>
               </div>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="إغلاق" className="p-1 rounded hover:bg-primary-foreground/15">
@@ -224,7 +331,6 @@ export const FaqChatbot = () => {
             )}
           </div>
 
-          {/* Topic menu — shown on first open so the user is never lost. */}
           {messages.length <= 1 && (
             <div className="px-4 pt-2 border-t border-border bg-card">
               <p className="text-[11px] font-bold text-muted-foreground mb-2">اختر موضوعاً:</p>
@@ -256,7 +362,6 @@ export const FaqChatbot = () => {
             </div>
           )}
 
-          {/* Free-text suggestions chips (only at start) */}
           {messages.length <= 1 && suggestions.length > 0 && (
             <div className="px-4 pt-3 pb-1 border-t border-border bg-card">
               <p className="text-[11px] font-bold text-muted-foreground mb-2">أسئلة شائعة:</p>
@@ -276,7 +381,10 @@ export const FaqChatbot = () => {
           )}
 
           <form
-            onSubmit={(e) => { e.preventDefault(); handleAsk(input); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleAsk(input);
+            }}
             className="flex items-center gap-2 p-3 border-t border-border bg-card"
           >
             <input
@@ -310,8 +418,11 @@ const Bubble = ({
 }) => {
   const isUser = m.role === "user";
   const text = m.text;
-  const topic = "topic" in m ? m.topic : undefined;
-  const isDidYouMean = !isUser && "suggestions" in m && Array.isArray((m as { suggestions?: FaqWithKeywords[] }).suggestions);
+  const topic = m.role === "bot" ? m.topic : undefined;
+  const aiRoute = m.role === "bot" ? m.route : undefined;
+  const aiRouteLabel = m.role === "bot" ? m.routeLabel : undefined;
+  const remaining = m.role === "bot" ? m.remaining : undefined;
+  const isDidYouMean = !isUser && "suggestions" in m && Array.isArray(m.suggestions);
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -324,10 +435,13 @@ const Bubble = ({
       >
         <p>{text}</p>
 
-        {/* "Did you mean?" chips */}
+        {typeof remaining === "number" && (
+          <p className="mt-1 text-[10px] text-muted-foreground">متبقي اليوم: {remaining}</p>
+        )}
+
         {isDidYouMean && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {((m as { suggestions?: FaqWithKeywords[] }).suggestions ?? []).map((s) => (
+            {(m.suggestions ?? []).map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -340,9 +454,16 @@ const Bubble = ({
           </div>
         )}
 
-        {/* Topic CTA — whenever the matched FAQ implies a navigate-able
-            destination, surface it as a button so the bot is actionable. */}
-        {topic && topic.action.kind === "route" && (
+        {aiRoute && (
+          <Link
+            to={aiRoute}
+            className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold bg-primary/10 text-primary px-2 py-1 rounded-full hover:bg-primary/20"
+          >
+            <ArrowLeft className="w-3 h-3" /> {aiRouteLabel || "انتقل"}
+          </Link>
+        )}
+
+        {topic && topic.action.kind === "route" && !aiRoute && (
           <Link
             to={topic.action.to}
             className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold bg-primary/10 text-primary px-2 py-1 rounded-full hover:bg-primary/20"
