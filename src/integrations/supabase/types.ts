@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      chatbot_ai_usage: {
+        Row: {
+          created_at: string
+          last_request_at: string | null
+          message_count: number
+          subject_key: string
+          subject_type: string
+          total_tokens: number
+          updated_at: string
+          usage_day: string
+        }
+        Insert: {
+          created_at?: string
+          last_request_at?: string | null
+          message_count?: number
+          subject_key: string
+          subject_type: string
+          total_tokens?: number
+          updated_at?: string
+          usage_day: string
+        }
+        Update: {
+          created_at?: string
+          last_request_at?: string | null
+          message_count?: number
+          subject_key?: string
+          subject_type?: string
+          total_tokens?: number
+          updated_at?: string
+          usage_day?: string
+        }
+        Relationships: []
+      }
       learning_game_items: {
         Row: {
           back_text: string | null
@@ -584,6 +617,24 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_chatbot_ai_tokens: {
+        Args: { p_subject_key: string; p_tokens: number }
+        Returns: undefined
+      }
+      reserve_chatbot_ai_quota: {
+        Args: {
+          p_cooldown_seconds?: number
+          p_daily_limit: number
+          p_subject_key: string
+          p_subject_type: string
+        }
+        Returns: {
+          allowed: boolean
+          reason: string
+          remaining: number
+          retry_after_seconds: number
+        }[]
       }
       teacher_has_subject: {
         Args: { _subject_id: string; _teacher_id: string }
