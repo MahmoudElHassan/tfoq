@@ -25,7 +25,7 @@
   6. أضف السرّ الثاني:
      ┌─────────────────────────┬──────────────────────────────────────────┐
      │ الاسم (Name)             │ ASSISTANT_IP_HASH_SALT                   │
-     │ القيمة (Value)          │ [الصق السلسلة العشوائية من المطوّr]         │
+     │ القيمة (Value)          │ [الصق السلسلة العشوائية من المطوّر]         │
      └─────────────────────────┴──────────────────────────────────────────┘
      اضغط Save / Add secret
 
@@ -52,17 +52,23 @@
 --------------------------------------------------------------------------------
 
   الدالة (Edge Function) هي ما يتصل بـ DeepSeek بشكل آمن من الخادم.
+  ملف الدالة هو: supabase/functions/faq-assist/index.ts
+  (ليس index.html)
 
-  ── (من لوحة Supabase) ──
+  ── (من لوحة Supabase / المطوّر) ──
   1. من القائمة: Edge Functions
-  2. ابح عن faq-assist أو Deploy function
-  3. إذا لم تكن الدالة موجودة، اطلب من المطوّر النشر عبر Terminal
-     (النشر الأول يحتاج عادةً أدوات المطوّر)
+  2. ابحث عن faq-assist أو Deploy function
+  3. إذا لم تكن الدالة موجودة، اطلب من المطوّر النشر عبر Terminal:
+       supabase link --project-ref vnphkmvzglbaxfbvnowp
+       supabase functions deploy faq-assist
+  4. تأكد من: supabase/config.toml يحتوي
+       [functions.faq-assist]
+       verify_jwt = false
 
   بعد النشر، تأكد أن الدالة faq-assist تظهر بحالة Active / Deployed.
 
 --------------------------------------------------------------------------------
-الجزء 4 — إعدادات موقع الويب (Vercel / Netlify / استضافة أخرى)
+الجزء 4 — إعدادات موقع الويب (Vercel / Netlify / Lovable / استضافة أخرى)
 --------------------------------------------------------------------------------
 
   ┌──────────────────────────────┬─────────────────────────────────────────┐
@@ -73,6 +79,9 @@
 
   أين تجد VITE_SUPABASE_PUBLISHABLE_KEY؟
   Supabase → Project Settings → API → anon public key
+
+  ⚠ لا تضف DEEPSEEK_API_KEY أو ASSISTANT_IP_HASH_SALT هنا
+  ⚠ لا تضف VITE_SUPABASE_FUNCTIONS_URL على الإنتاج (للتجربة المحلية فقط)
 
   بعد أي تغيير في إعدادات الاستضافة: أعد نشر الموقع (Redeploy).
 
