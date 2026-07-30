@@ -12,9 +12,12 @@ dist
 dist-ssr
 *.local
 
-# Secrets — never commit Supabase keys
-.env
+# Public Vite env for Vercel (tracked .env = VITE_SUPABASE_* only, no DeepSeek).
+# Keep server secrets in .env.local (gitignored).
+.env.local
+.env.*.local
 .env.*
+!.env
 !.env.example
 
 # Local Supabase CLI / Cursor — do not ship to GitHub or Vercel
