@@ -11,12 +11,12 @@ export function LandingLoadOverlay({ show, logoUrl, brandName }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-background/40 pointer-events-auto"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-background/55 backdrop-blur-md pointer-events-auto"
       role="status"
       aria-busy="true"
       aria-live="polite"
     >
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 px-6">
         {logoUrl ? (
           <img
             src={logoUrl}

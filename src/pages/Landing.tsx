@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Users, BookOpen, Gauge, ShieldCheck, Award, Target, Compass, Eye } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -71,8 +71,9 @@ const Landing = () => {
   const { brand, loading: brandLoading } = useBranding();
   const [liveStats, setLiveStats] = useState<{ v: string; l: string }[] | null>(null);
   const hasBrandCache = Boolean(readPublishedBrandingCache()?.theme_id);
-  const loadStartedAtRef = useRef(Date.now());
-  const [holdDone, setHoldDone] = useState(hasBrandCache);
+  // Always begin with holdDone=false so the blur overlay is visible on first reveal
+  // (body was often still visibility:hidden until brand settled).
+  const [holdDone, setHoldDone] = useState(false);
 
   // Defer live stats so they do not block first Landing paint.
   // Runs only after branding finished loading, scheduled on the next macrotask.
@@ -103,35 +104,25 @@ const Landing = () => {
     return () => { cancelled = true; window.clearTimeout(t); };
   }, [brandLoading]);
 
-  // Adaptive visible loading overlay (1000–1500ms) starting when brand gate
-  // can reveal. Skipped entirely when published branding cache exists.
-  // Does not delay Supabase fetches — UI hold only.
+  // Visible loading overlay after the brand gate can reveal the body.
+  // Without this hold, brandLoading/contentLoading are often already false
+  // the instant visibility flips, so the blur overlay never appears.
+  // Cache: ~1s hold. Cold load: 1–1.5s. Does not delay network fetches.
   useEffect(() => {
-    if (hasBrandCache) {
-      setHoldDone(true);
-      return;
-    }
     if (brandLoading) {
       setHoldDone(false);
       return;
     }
-    const loadElapsedMs = Date.now() - loadStartedAtRef.current;
-    const holdMs = Math.min(
-      1500,
-      Math.max(1000, Math.round(1000 + loadElapsedMs / 4)),
-    );
+    const holdMs = hasBrandCache ? 1000 : 1200;
     setHoldDone(false);
     const t = window.setTimeout(() => setHoldDone(true), holdMs);
     return () => window.clearTimeout(t);
   }, [brandLoading, hasBrandCache]);
 
   // Body stays hidden behind the visibility gate until BrandThemeProvider
-  // reveals it. We no longer return null here: the layout renders blurred
-  // behind a fixed overlay until branding + CMS content settle. When
-  // published branding cache exists, no extra hold is forced.
-  const showLoadOverlay = hasBrandCache
-    ? brandLoading || contentLoading
-    : brandLoading || contentLoading || !holdDone;
+  // reveals it. Layout renders blurred behind a fixed overlay until branding,
+  // CMS content, and the short reveal hold all settle.
+  const showLoadOverlay = brandLoading || contentLoading || !holdDone;
 
   // Stats source priority: admin-edited stats → live DB stats → defaults
   const stats: { v: string; l: string }[] =
@@ -353,7 +344,7 @@ const Landing = () => {
         {/* Mount chatbot only after overlay clears — avoids competing with CMS fetch */}
         {!showLoadOverlay && (
           <Suspense fallback={null}>
-            <FaqChatbot />
+            <FaqChatbot mode="public" />
           </Suspense>
         )}
       </div>

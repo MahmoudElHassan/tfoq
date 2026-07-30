@@ -3,6 +3,7 @@ import { Link2, GraduationCap, Trophy, Activity, Users, Unlink, BarChart3 } from
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SiteNav } from "@/components/site/SiteNav";
+import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -302,6 +303,7 @@ const ParentDashboard = () => {
           </div>
         )}
       </div>
+      <FaqChatbot mode="parent" />
     </div>
   );
 };

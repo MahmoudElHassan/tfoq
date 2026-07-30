@@ -7,6 +7,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SiteNav } from "@/components/site/SiteNav";
+import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -286,6 +287,7 @@ const StudentDashboard = () => {
 
       <GamePreview game={previewGame} onClose={() => setPreviewGame(null)} />
       <StudentVideoPlayer video={playingVideo} onClose={() => setPlayingVideo(null)} userId={user?.id} />
+      <FaqChatbot mode="student" />
     </div>
   );
 };
