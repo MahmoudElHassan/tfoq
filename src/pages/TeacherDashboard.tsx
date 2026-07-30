@@ -4,6 +4,7 @@ import { LearningManagement } from "@/components/learning/LearningManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SiteNav } from "@/components/site/SiteNav";
+import { FaqChatbot } from "@/components/site/FaqChatbot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -384,6 +385,7 @@ const TeacherDashboard = () => {
           </Tabs>
         )}
       </div>
+      <FaqChatbot mode="teacher" />
     </div>
   );
 };

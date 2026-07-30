@@ -28,12 +28,27 @@ type ChatMessage =
       remaining?: number;
     };
 
+type FaqChatbotMode = "public" | "student" | "teacher" | "parent" | "admin";
+
 type FaqChatbotProps = {
-  mode?: "public" | "student";
+  mode?: FaqChatbotMode;
 };
 
-const WELCOME_PUBLIC = "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇";
-const WELCOME_STUDENT = "مرحباً! أنا مساعدك في المنصة — اسأل عن الاختبارات أو النقاط أو أي شيء 👇";
+const WELCOME_BY_MODE: Record<FaqChatbotMode, string> = {
+  public: "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇",
+  student: "مرحباً! أنا مساعدك في المنصة — اسأل عن الاختبارات أو النقاط أو أي شيء 👇",
+  teacher: "مرحباً! أنا مساعدك كمعلم — اسأل عن إدارة المحتوى أو استخدام المنصة 👇",
+  parent: "مرحباً! أنا مساعدك كولي أمر — اسأل عن متابعة الطالب أو استخدام المنصة 👇",
+  admin: "مرحباً! أنا مساعدك كمسؤول — اسأل عن إدارة المنصة أو المساعد الذكي 👇",
+};
+
+const SUBTITLE_BY_MODE: Record<FaqChatbotMode, string> = {
+  public: "قاعدة معرفة الأسئلة الشائعة",
+  student: "مساعدك في المنصة",
+  teacher: "مساعد المعلم",
+  parent: "مساعد ولي الأمر",
+  admin: "مساعد المسؤول",
+};
 
 function buildAssistHistory(messages: ChatMessage[]) {
   return messages
@@ -122,7 +137,7 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
       setMessages([
         {
           role: "bot",
-          text: mode === "student" ? WELCOME_STUDENT : WELCOME_PUBLIC,
+          text: WELCOME_BY_MODE[mode],
         },
       ]);
     }
@@ -308,9 +323,7 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
               <Sparkles className="w-5 h-5" />
               <div>
                 <p className="font-display font-extrabold leading-tight">المساعد الذكي</p>
-                <p className="text-[11px] opacity-80">
-                  {mode === "student" ? "مساعدك في المنصة" : "قاعدة معرفة الأسئلة الشائعة"}
-                </p>
+                <p className="text-[11px] opacity-80">{SUBTITLE_BY_MODE[mode]}</p>
               </div>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="إغلاق" className="p-1 rounded hover:bg-primary-foreground/15">

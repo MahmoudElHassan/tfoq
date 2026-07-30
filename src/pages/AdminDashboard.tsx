@@ -11,6 +11,7 @@ import { UsersManagement } from "@/components/dashboard/UsersManagement";
 import { SiteContentEditor } from "@/components/dashboard/SiteContentEditor";
 import { FaqManager } from "@/components/dashboard/FaqManager";
 import { AdminSettings } from "@/components/dashboard/AdminSettings";
+import { FaqChatbot } from "@/components/site/FaqChatbot";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   overview: { title: "النظرة العامة", subtitle: "أهلاً بك، إليك ملخص أداء المنصة اليوم" },
@@ -76,6 +77,7 @@ const AdminDashboard = () => {
           {section === "settings" && <AdminSettings />}
         </div>
       </main>
+      <FaqChatbot mode="admin" />
     </div>
   );
 };
