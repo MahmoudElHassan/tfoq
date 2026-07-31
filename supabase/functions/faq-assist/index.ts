@@ -23,8 +23,8 @@ const ROUTE_MAP = [
   { path: "/dashboard", label: "لوحة التحكم" },
 ];
 
-const GUEST_DAILY_LIMIT = 5;
-const USER_DAILY_LIMIT = 20;
+const GUEST_DAILY_LIMIT = 2;
+const USER_DAILY_LIMIT = 5;
 const COOLDOWN_SECONDS = 4;
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const DEEPSEEK_MODEL = "deepseek-v4-flash";
