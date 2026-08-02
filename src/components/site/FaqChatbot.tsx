@@ -35,7 +35,7 @@ type FaqChatbotProps = {
 };
 
 const WELCOME_BY_MODE: Record<FaqChatbotMode, string> = {
-  public: "مرحباً! اسأل عن أي شيء يخص المنصة، أو اختر موضوعاً 👇",
+  public: "مرحباً! اسأل عن أي شيء يخص المنصة 👇",
   student: "مرحباً! أنا مساعدك في المنصة — اسأل عن الاختبارات أو النقاط أو أي شيء 👇",
   teacher: "مرحباً! أنا مساعدك كمعلم — اسأل عن إدارة المحتوى أو استخدام المنصة 👇",
   parent: "مرحباً! أنا مساعدك كولي أمر — اسأل عن متابعة الطالب أو استخدام المنصة 👇",
@@ -61,7 +61,36 @@ function buildAssistHistory(messages: ChatMessage[]) {
     .filter((m) => m.content.length > 0);
 }
 
-function nomatchFallback(topic: GuidedTopic | null) {
+/** Peel accidental DeepSeek JSON envelopes so users never see {"reply":...}. */
+function unwrapAssistReply(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("{") || !/"reply"\s*:/.test(trimmed)) return text;
+  try {
+    const parsed = JSON.parse(trimmed) as { reply?: unknown };
+    if (typeof parsed.reply === "string" && parsed.reply.trim()) return parsed.reply.trim();
+  } catch {
+    const complete = trimmed.match(/"reply"\s*:\s*"((?:\\.|[^"\\])*)"/);
+    if (complete?.[1] != null) {
+      try {
+        return JSON.parse(`"${complete[1]}"`);
+      } catch {
+        return complete[1];
+      }
+    }
+    const loose = trimmed.match(/"reply"\s*:\s*"([\s\S]*)/);
+    if (loose?.[1] != null) {
+      return loose[1]
+        .replace(/"\s*,\s*"(route|routeLabel)"[\s\S]*$/i, "")
+        .replace(/"\s*\}\s*$/, "")
+        .replace(/\\$/, "")
+        .replace(/\\n/g, "\n")
+        .replace(/\\"/g, '"');
+    }
+  }
+  return text;
+}
+
+function nomatchFallback(topic: GuidedTopic | null, isGuest: boolean) {
   if (topic) {
     return {
       role: "bot" as const,
@@ -70,6 +99,12 @@ function nomatchFallback(topic: GuidedTopic | null) {
           ? `لم أجد إجابة دقيقة في قاعدة المعرفة، لكن يبدو أن سؤالك عن «${topic.label}». يمكنني أن أوجّهك.`
           : topic.action.label,
       topic,
+    };
+  }
+  if (isGuest) {
+    return {
+      role: "bot" as const,
+      text: "لم أجد إجابة في قاعدة المعرفة. يمكنك إعادة صياغة السؤال أو اختيار سؤال شائع.",
     };
   }
   return {
@@ -84,7 +119,23 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [faqs, setFaqs] = useState<FaqWithKeywords[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isGuest, setIsGuest] = useState(true);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      setIsGuest(!session?.user);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsGuest(!session?.user);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -155,7 +206,9 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
   const followUp = () => {
     pushBot({
       role: "bot",
-      text: "هل تحتاج شيئاً آخر؟ اختر موضوعاً أو اكتب سؤالك ✨",
+      text: isGuest
+        ? "هل تحتاج شيئاً آخر؟ اكتب سؤالك أو اختر سؤالاً شائعاً ✨"
+        : "هل تحتاج شيئاً آخر؟ اختر موضوعاً أو اكتب سؤالك ✨",
     });
   };
 
@@ -257,7 +310,7 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
       if (assist?.ok) {
         pushBot({
           role: "bot",
-          text: assist.reply,
+          text: unwrapAssistReply(assist.reply),
           route: assist.route,
           routeLabel: assist.routeLabel,
           remaining: assist.remaining,
@@ -275,7 +328,7 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
         }
       }
 
-      pushBot(nomatchFallback(topic));
+      pushBot(nomatchFallback(topic, isGuest));
       followUp();
     } finally {
       setLoading(false);
@@ -344,7 +397,7 @@ export const FaqChatbot = ({ mode = "public" }: FaqChatbotProps) => {
             )}
           </div>
 
-          {messages.length <= 1 && (
+          {messages.length <= 1 && !isGuest && (
             <div className="px-4 pt-2 border-t border-border bg-card">
               <p className="text-[11px] font-bold text-muted-foreground mb-2">اختر موضوعاً:</p>
               <div className="grid grid-cols-3 gap-1.5">

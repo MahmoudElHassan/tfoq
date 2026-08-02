@@ -204,12 +204,13 @@ function buildFaqContext(
 function buildSystemPrompt(faqContext: string): string {
   const routes = ROUTE_MAP.map((r) => `- ${r.path} — ${r.label}`).join("\n");
   return [
-    "أنت مساعد ذكي لمنصة تفوق التعليمية (Tfoq).",
-    "أجب بالعربية الفصحى المبسطة وباختصار.",
-    "أجب فقط عن منصة تفوق، صفحاتها، الأسئلة الشائعة، التحضير للتحصيلي والقدرات، واستخدام ميزات المنصة.",
-    "ارفض الأسئلة غير المرتبطة بالمنصة، أو الطلبات غير الآمنة، أو طلبات كلمات المرور والرموز والبيانات الحساسة.",
-    "لا تدّعِ القدرة على تعديل بيانات أو صلاحيات إدارية.",
-    "اعتمد على حقائق الأسئلة الشائعة أدناه عند الإمكان، وقل بوضوح إذا لم تتوفر المعلومة.",
+    "أنت مساعد ذكي عام لمنصة تفوق التعليمية (Tfoq).",
+    "أجب بالعربية الفصحى المبسطة وباختصار وبأسلوب ودود.",
+    "أجب عن الأسئلة العامة بإيجاز ووضوح.",
+    "عندما يكون السؤال عن منصة تفوق أو أي موضوع مرتبط بها، اعتمد أولاً على حقائق الأسئلة الشائعة أدناه وصفحات المنصة المتاحة، وقدّم إجابة دقيقة مع ذكر الصفحة المناسبة إن وُجدت.",
+    "ارفض بأدب طلب كلمات المرور أو الرموز أو أي بيانات حساسة، وأي محتوى غير آمن أو يهدف لانتحال صفة إدارية أو تعديل صلاحيات.",
+    "لا تدّعِ القدرة على تعديل بيانات أو صلاحيات إدارية، ووجّه المستخدم إلى القنوات الرسمية عند الحاجة.",
+    "إذا لم تتوفر المعلومة في الأسئلة الشائعة، قل ذلك بوضوح واقترح سؤالاً بديلاً أو صفحة قريبة من القائمة.",
     "",
     "صفحات المنصة المتاحة:",
     routes,
@@ -222,26 +223,96 @@ function buildSystemPrompt(faqContext: string): string {
   ].join("\n");
 }
 
+/** Unescape a JSON string body (content between quotes, escapes preserved). */
+function unescapeJsonString(value: string): string {
+  try {
+    return JSON.parse(`"${value}"`);
+  } catch {
+    return value
+      .replace(/\\n/g, "\n")
+      .replace(/\\r/g, "\r")
+      .replace(/\\t/g, "\t")
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, "\\");
+  }
+}
+
+/**
+ * Extract assistant text even when DeepSeek returns truncated / fenced JSON.
+ * Never surface raw {"reply":...} wrappers to the client.
+ */
 function parseAssistantPayload(raw: string): { reply: string; route: string | null; routeLabel: string | null } {
-  const trimmed = raw.trim();
+  let trimmed = raw.trim();
+  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence?.[1]) trimmed = fence[1].trim();
+
+  let reply = trimmed;
+  let route: string | null = null;
+  let routeLabel: string | null = null;
+
   try {
     const parsed = JSON.parse(trimmed) as {
       reply?: unknown;
       route?: unknown;
       routeLabel?: unknown;
     };
-    const reply = typeof parsed.reply === "string" ? parsed.reply.trim() : trimmed;
-    let route: string | null = typeof parsed.route === "string" ? parsed.route.trim() : null;
-    let routeLabel: string | null =
-      typeof parsed.routeLabel === "string" ? parsed.routeLabel.trim().slice(0, 80) : null;
-    if (route && !ALLOWED_ROUTES.has(route)) {
-      route = null;
-      routeLabel = null;
+    if (typeof parsed.reply === "string") {
+      reply = parsed.reply.trim();
     }
-    return { reply: reply.slice(0, 2000), route, routeLabel };
+    route = typeof parsed.route === "string" ? parsed.route.trim() : null;
+    routeLabel =
+      typeof parsed.routeLabel === "string" ? parsed.routeLabel.trim().slice(0, 80) : null;
   } catch {
-    return { reply: trimmed.slice(0, 2000), route: null, routeLabel: null };
+    // Truncated JSON (common when max_tokens cuts mid-object): pull "reply" value.
+    const complete = trimmed.match(/"reply"\s*:\s*"((?:\\.|[^"\\])*)"/);
+    if (complete?.[1] != null) {
+      reply = unescapeJsonString(complete[1]).trim();
+    } else {
+      const loose = trimmed.match(/"reply"\s*:\s*"([\s\S]*)/);
+      if (loose?.[1] != null) {
+        let extracted = loose[1];
+        // Drop trailing JSON fields if the model got that far.
+        extracted = extracted.replace(/"\s*,\s*"(route|routeLabel)"[\s\S]*$/i, "");
+        extracted = extracted.replace(/"\s*\}\s*$/, "");
+        // If cut mid-string, drop a dangling incomplete escape at the end.
+        extracted = extracted.replace(/\\$/, "");
+        reply = unescapeJsonString(extracted).trim();
+      }
+    }
+
+    const routeMatch = trimmed.match(/"route"\s*:\s*(null|"([^"]*)")/);
+    if (routeMatch) {
+      route = routeMatch[1] === "null" ? null : (routeMatch[2] ?? null);
+    }
+    const labelMatch = trimmed.match(/"routeLabel"\s*:\s*(null|"([^"]*)")/);
+    if (labelMatch) {
+      routeLabel = labelMatch[1] === "null" ? null : (labelMatch[2] ?? null)?.slice(0, 80) ?? null;
+    }
   }
+
+  // Final guard: if reply still looks like a JSON envelope, peel once more.
+  if (reply.trimStart().startsWith("{") && /"reply"\s*:/.test(reply)) {
+    const inner = reply.match(/"reply"\s*:\s*"((?:\\.|[^"\\])*)"/);
+    if (inner?.[1] != null) {
+      reply = unescapeJsonString(inner[1]).trim();
+    } else {
+      const looseInner = reply.match(/"reply"\s*:\s*"([\s\S]*)/);
+      if (looseInner?.[1] != null) {
+        let extracted = looseInner[1]
+          .replace(/"\s*,\s*"(route|routeLabel)"[\s\S]*$/i, "")
+          .replace(/"\s*\}\s*$/, "")
+          .replace(/\\$/, "");
+        reply = unescapeJsonString(extracted).trim();
+      }
+    }
+  }
+
+  if (route && !ALLOWED_ROUTES.has(route)) {
+    route = null;
+    routeLabel = null;
+  }
+
+  return { reply: reply.slice(0, 2000), route, routeLabel };
 }
 
 Deno.serve(async (req) => {
@@ -372,7 +443,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           model: DEEPSEEK_MODEL,
           stream: false,
-          max_tokens: 400,
+          max_tokens: 700,
           temperature: 0.2,
           messages: chatMessages,
         }),
